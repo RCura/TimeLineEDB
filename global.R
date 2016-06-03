@@ -5,8 +5,6 @@ library(ggplot2)
 library(lubridate)
 library(leaflet) # For now : devtools::install_github("RCura/leaflet")
 library(ggthemes)
-library(plotly)
-
 library(ggmap)
 
 

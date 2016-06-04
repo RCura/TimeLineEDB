@@ -13,7 +13,10 @@ library(shiny)
 
 # Define server logic required to draw a histogram
 shinyServer(function(session, input, output) {
-   
+  
+  locationData <- reactiveValues(raw = rawData, base = formattedData, geofiltred = NA, timefiltred = NA)
+  analysisData <- reactiveValues(homePoint = NA, workPoint = NA) 
+  
   output$map <- renderLeaflet({
     mapData <- locationData$base
     dataLength <- nrow(mapData)

@@ -47,10 +47,16 @@ function startIntro(){
   intro.setOptions({
     steps: [
       { 
-        intro: "Hello world!"
+        intro: "Bienvenue dans l'application <b>TimeLine</b> <b>E</b>xploratory <b>D</b>ash<b>B</b>oard!"
       },
       { 
-        intro: "You <b>don't need</b> to define element to focus, this is a floating tooltip."
+        intro: "Ici, on explique l'objectif"
+      },
+      {
+        intro: "Ici, on explique l'usage de l'application"
+      },
+      {
+        intro : "On va maintenant présenter les composants un par un"
       },
       {
         element: '#map',
@@ -65,20 +71,47 @@ function startIntro(){
         intro: 'Ce graphique interactif affiche la fréquence temporelle (heures de la journée) des enregistrement de l\'utilisateur.\n<br />Vous pouvez effectuer une sélection sur ces heures, ce qui aura pour effet de modifier les points affichés sur la carte, et ainsi, essayer de trouver les lieux fréquentés par l\'utilisateur aux différentes heures de la journée'
       },
       {
-        element: '#controls',
-        intro: "This is a selectInput :)."
+        element: '#monthfreq',
+        intro: 'monthfreq'
       },
       {
-        element: '#step5',
-        intro: 'Get it, use it.'
+        element: '.well',
+        intro: 'Analyse auto'
+      },
+      {
+        element: '#userData',
+        intro: "Charger données"
+      },
+      {
+        element: '#mainHelp',
+        intro: "Vous pouvez cliquer ici à tout moment pour ré-afficher cette présentation de TimeLine EDB.\n<hr /> Bonne exploration !"
       }
       ],
     tooltipPosition: 'auto',
+    tooltipClass:'customDefault',
     positionPrecedence: ['left', 'right', 'bottom', 'top'],
     showProgress: true
   });
   
   intro.start();
+}
+
+
+
+function userDataIntro(){
+  var introUserData = introJs();
+  introUserData.setOptions({
+    steps: [
+      { 
+        intro: "Bienvenue dans l'application <b>TimeLine</b> <b>E</b>xploratory <b>D</b>ash<b>B</b>oard!"
+      }],
+    tooltipPosition: 'auto',
+    tooltipClass:'customDefault',
+    positionPrecedence: ['left', 'right', 'bottom', 'top'],
+    showProgress: true
+  });
+  
+  introUserData.start();
 }
 
 window.onload = function() {

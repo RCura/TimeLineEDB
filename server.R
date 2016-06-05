@@ -241,5 +241,7 @@ shinyServer(function(session, input, output) {
    
    suppressMessages(revgeocode(location = c(analysisData$workPoint$Xround, analysisData$workPoint$Yround)))
  })
+ 
+ 
   
 })

@@ -11,16 +11,17 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(theme = "slate-bootstrap.css",
-  # Application title
   tags$head(tags$link(rel="icon", type="image/png", href="favicon.png"), 
             tags$title("TimeLineEDB"),
             includeScript("www/intro.min.js"),
-            includeCSS("www/introjs.min.css"),
-            includeScript("www/CustomIntro.js")),
+            includeCSS("www/introjs.css"),
+            includeScript("www/CustomIntro.js"),
+            includeCSS("www/timelineEDB.css")),
   #titlePanel("TimeLine Exploratory DashBoard", windowTitle = "TimeLineEDB"),
   h2("TimeLine Exploratory DashBoard",
-     tags$a(style = "float: right;", icon(name="question-sign", lib = "glyphicon"),
-     href="javascript:void(0);", onclick="startIntro();")),
+     tags$a(id = "mainHelp", style = "float: right;", icon(name="question-circle", class = "fa-1x", lib = "font-awesome"),
+            href="javascript:void(0);", onclick="startIntro();")
+     ),
   fluidRow(
     column(4, plotOutput("daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x"))),
     
@@ -41,11 +42,25 @@ shinyUI(fluidPage(theme = "slate-bootstrap.css",
                           ),
                           tags$br(),
                           tags$li(
-                            "Adresse (apprximative) de travail :", actionLink("analysisWork", textOutput("workAddress", inline = TRUE))
+                            "Adresse (approximative) de travail :", actionLink("analysisWork", textOutput("workAddress", inline = TRUE))
                           )
                         )
                         )),
-           fluidRow(actionButton("userData", "Explorez vos propres données", icon = icon("upload", lib = "glyphicon", class="primary"), width = "100%")))
-           
+           fluidRow(
+             column(1, tags$a(icon(name="question-circle", class = "fa-3x", lib = "font-awesome"),
+                              href="javascript:void(0);", onclick="userDataIntro();")),
+             column(11,actionButton("userData", "Explorez vos propres données", width = "100%"))
+             ),
+           fluidRow(
+             HTML("Timeline EDB a été développé par",
+                  "<a href=\"http://www.parisgeo.cnrs.fr/spip.php?article6416&lang=fr\" target=\"_blank\">",
+                  "Robin Cura</a>, 2016.",
+                  "C'est un logiciel libre, sous licence ",
+                  "<a href=\"https://fr.wikipedia.org/wiki/GNU_Affero_General_Public_License\" target=\"_blank\">AGPL</a>,",
+                  "et ses sources sont consultables et ré-utilisables",
+                  "<a href=\"https://github.com/RCura/TimeLineEDB\" target=\"_blank\">sur ce dépôt GitHub</a>."
+             )
+           )
+    )
   )
 ))

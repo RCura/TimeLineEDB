@@ -1,0 +1,10 @@
+.forLastStep {
+  font-weight: bold;
+}
+.customDefault { 
+  color: black;
+}
+.customDefault .introjs-skipbutton {
+  border-radius: 0;
+  color: red;
+}

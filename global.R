@@ -7,7 +7,6 @@ library(leaflet) # For now : devtools::install_github("RCura/leaflet")
 library(ggthemes)
 library(ggmap)
 
-
 moisFr <- c("janv.", "févr.", "mars",
             "avril", "mai", "juin", "juil.",
             "août", "sept.", "oct.",
@@ -46,8 +45,8 @@ formattedData <- rawData %>%
   mutate(annee = year(time)) %>%
   mutate(heure = hour(time)) %>%
   mutate(minute = minute(time)) %>%
-  mutate(dhour = hour(time) + minute(time)/60 + second(time)/3600) #%>%
-  #sample_n(10000)
+  mutate(dhour = hour(time) + minute(time)/60 + second(time)/3600) %>%
+  sample_n(10000)
 
 locationData <- reactiveValues(raw = rawData, base = formattedData, geofiltred = NA, timefiltred = NA)
 analysisData <- reactiveValues(homePoint = NA, workPoint = NA)

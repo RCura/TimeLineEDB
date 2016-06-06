@@ -262,6 +262,11 @@ shinyServer(function(session, input, output) {
       )
   })
   
+  observeEvent(input$map_selectbox_deleting,{
+    thisMapProxy <- leafletProxy("map")
+    thisMapProxy %>%
+      removeMarker("selectbox")
+  })
   
   
   observeEvent(input$analysisWork, {

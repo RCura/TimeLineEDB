@@ -25,7 +25,13 @@ shinyUI(
       4, plotOutput("daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x"))
     ),
     
-    column(8,  leafletOutput("map", height = "450px"))),
+    column(8,
+           tags$input(id = "mapSettings", type = "checkbox", class = "inv-checkbox"),
+           tags$label('for' = "mapSettings",  icon(name = "cogs", class = "fa-1x", lib = "font-awesome")),
+           conditionalPanel(condition = "input.mapSettings == true",
+                            checkboxInput("showClusters", label = "Afficher les clusters de points ?",  value = FALSE),
+                            checkboxInput("fitToBounds", label = "Synchroniser l'étendue de la carte avec la sélection ?", value = FALSE)),
+           leafletOutput("map", height = "450px"))),
     tags$br(),
     fluidRow(
       column(4,

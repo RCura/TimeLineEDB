@@ -71,7 +71,7 @@ formattedData <- rawData %>%
   mutate(heure = hour(time)) %>%
   mutate(minute = minute(time)) %>%
   mutate(dhour = hour(time) + minute(time) / 60 + second(time) / 3600) %>%
-  sample_n(10000)
+  sample_n(50000)
 
 locationData <- reactiveValues(
     raw = rawData,

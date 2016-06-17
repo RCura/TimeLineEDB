@@ -10,6 +10,8 @@ shinyServer(function(session, input, output) {
     )
   analysisData <- reactiveValues(homePoint = NA, workPoint = NA)
   
+  
+  
   output$map <- renderLeaflet({
     mapData <- locationData$base
     dataLength <- nrow(mapData)
@@ -20,13 +22,6 @@ shinyServer(function(session, input, output) {
       addProviderTiles('Stamen.TonerLite',
                        group = "TonerLite",
                        options = providerTileOptions(opacity = 1)) %>%
-      addMarkers(
-        lng = ~ X,
-        lat = ~ Y,
-        clusterOptions = markerClusterOptions(),
-        group = "Clusters"
-      ) %>%
-      hideGroup("Clusters") %>%
       addHeatmap(
         layerId = "heatmap",
         lng = ~ X,
@@ -39,7 +34,6 @@ shinyServer(function(session, input, output) {
       ) %>%
       addLayersControl(
         baseGroups = c("DarkMatter", "TonerLite"),
-        overlayGroups = c("Clusters"),
         options = layersControlOptions(collapsed = TRUE)
       ) %>%
       addDrawToolbar(
@@ -48,7 +42,7 @@ shinyServer(function(session, input, output) {
         circle = FALSE,
         marker = FALSE,
         edit = FALSE,
-        polygon = TRUE,
+        polygon = FALSE,
         rectangle = TRUE,
         remove = TRUE,
         singleLayer = TRUE
@@ -57,6 +51,24 @@ shinyServer(function(session, input, output) {
     map
   })
   outputOptions(output, "map", suspendWhenHidden = FALSE)
+  
+  observe({
+    if (isTRUE(input$showClusters)){
+      thisMapProxy <- leafletProxy("map", data = locationData$base)
+      thisMapProxy %>%
+        addMarkers(
+          lng = ~ X,
+          lat = ~ Y,
+          clusterOptions = markerClusterOptions(),
+          group = "Clusters"
+        )
+    } else {
+      thisMapProxy <- leafletProxy("map", data = locationData$base)
+      thisMapProxy %>%
+        clearGroup(group = "Clusters")
+    }
+    
+  })
   
   output$daydensity <- renderPlot({
     densityPlot <-  ggplot(locationData$base, aes(dhour))  +
@@ -111,8 +123,9 @@ shinyServer(function(session, input, output) {
     }
   })
   
-  # Zoom map on spatial selection and update daydensity plot
+  # Zoom map on spatial selection
   observe({
+    req(input$fitToBounds)
     if (length(locationData$geofiltred) > 1) {
       mapData <- locationData$geofiltred
     } else {
@@ -188,7 +201,7 @@ shinyServer(function(session, input, output) {
     dataLength <- nrow(mapData)
     thisMapProxy <- leafletProxy("map", data = mapData)
     thisMapProxy %>%
-      removeHeatmap(layerId = "heatmap") %>%
+      clearHeatmap() %>%
       addHeatmap(
         layerId = "heatmap",
         lng = ~ X,
@@ -262,11 +275,19 @@ shinyServer(function(session, input, output) {
       )
   })
   
-  observeEvent(input$map_selectbox_deleting,{
-    thisMapProxy <- leafletProxy("map")
-    thisMapProxy %>%
-      removeMarker("selectbox")
-  })
+  # # observe({
+  # #   if (input$map_selectbox_deleting){
+  # #     print("deleting...")
+  # #   }
+  # # })
+  # 
+  # observeEvent(input$map_selectbox_deleting,{
+  #   print("blob")
+  #   thisMapProxy <- leafletProxy("map")
+  #   thisMapProxy %>%
+  #     fitBounds(0,0,0,0)
+  #     
+  # })
   
   
   observeEvent(input$analysisWork, {
@@ -324,6 +345,38 @@ shinyServer(function(session, input, output) {
         analysisData$workPoint$Yround
       )
     ))
+  })
+  
+  # This is an ugly trick :
+  # Leaflet.draw & Leaflet.heat are conflicting
+  # When a heatmap is displayed, it's not possible
+  # to delete a drawing
+  # Thus, when delete is triggered, (_deleting == TRUE)
+  # I remove the heatmap
+  # And add it back when deleting session is finished (_deleting == NULL)
+  observe({
+    if (length(isolate(locationData$timefiltred)) > 1) {
+      mapData <- isolate(locationData$timefiltred)
+    } else {
+      mapData <- isolate(locationData$base)
+    }
+    dataLength <- nrow(mapData)
+    thisMapProxy <- leafletProxy("map", data = mapData)
+
+    if (isTRUE(input$map_selectbox_deleting)){
+      thisMapProxy %>% removeHeatmap("heatmap")
+    } else if (is.null(input$map_selectbox_deleting)){
+      thisMapProxy %>% addHeatmap(
+        layerId = "heatmap",
+        lng = ~ X,
+        lat = ~ Y,
+        intensity = (1 / dataLength) * 10 ,
+        minOpacity = 0.1,
+        radius = 5,
+        blur = 5,
+        gradient = "GnBu"
+      )
+    }
   })
   
   

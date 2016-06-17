@@ -8,3 +8,7 @@
   border-radius: 0;
   color: red;
 }
+
+.inv-checkbox {
+  display:none;
+}

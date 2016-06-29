@@ -67,6 +67,7 @@ shinyUI(
                  tags$label('for' = "userSettings", span("Explorez vos propres données",  class = "btn btn-info"),
                             onclick = "userDataIntro();"),
                  tags$a(
+                   id = "userDataHelp",
                    icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"),
                    href = "javascript:void(0);",
                    onclick = "userDataIntro();"

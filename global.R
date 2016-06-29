@@ -33,7 +33,7 @@ colorPalette <- colorNumeric(
 
 
 formatData <- function(rawData){
-  rawData %>%
+  formattedData <- rawData %>%
     # mutate(time = parse_datetime(Time, format = "%Y/%m/%d %H:%M:%S")) %>%
     mutate(jour = day(Time)) %>%
     mutate(jourN = factor(weekdays(Time, abbreviate = TRUE), levels = joursFr)) %>%
@@ -43,6 +43,10 @@ formatData <- function(rawData){
     mutate(heure = hour(Time)) %>%
     mutate(minute = minute(Time)) %>%
     mutate(dhour = hour(Time) + minute(Time) / 60 + second(Time) / 3600)
+  if (nrow(formattedData) > 50E3){
+    formattedData <- formattedData %>%
+      sample_n(size = 50E3)
+  }
 }
 
 theme_timelineEDB <- function() {
@@ -73,7 +77,6 @@ theme_timelineEDB <- function() {
 
 
 rawData <- read_csv(file = "data/SelfPoints.csv") %>%
-  rename(Time = timestamp) %>%
   select(Time, X, Y)
 
 formattedData <- formatData(rawData)

@@ -96,14 +96,33 @@ function startIntro(){
   intro.start();
 }
 
-
-
 function userDataIntro(){
   var introUserData = introJs();
   introUserData.setOptions({
     steps: [
       { 
-        intro: "Bienvenue dans l'application <b>TimeLine</b> <b>E</b>xploratory <b>D</b>ash<b>B</b>oard!"
+        intro: "Vous pouvez maintenant explorer vos propres données, si toutefois Google en possède sur vous !"
+      },
+      {
+        intro: "Pour cela, rendez-vous sur la page suivante et connectez-vous avec votre compte Google: <br /><a href='https://www.google.com/maps/timeline' target='_blank'>https://www.google.com/maps/timeline</a>. Vous pourrez alors revenir sur l'application TimeLine EDB."
+      },{
+        intro: "Si des données se sont bien affichées, il va falloir les télécharger depuis le serveur de Google afin de les insérer dans l'application."
+      },{
+        intro: "Pour se faire, allez sur la page <a href='https://takeout.google.com/settings/takeout/custom/location_history?hl=fr&gl=FR' target='_blank'>suivante</a>, laissez les options par défaut, et cliquez sur Suivant."
+      },{
+        intro: 'Vous pouvez alors cliquer sur "Créér une archive" et attendre que le fichier <i>zip</i> vous soit proposé en téléchargement.' 
+      },{
+        intro: "Une fois ce <i>zip</i> téléchargé, vous pourrez l'entrer dans l'application."
+      },
+      {
+        element: '#userData',
+        intro: "En cliquant sur ce menu."
+      },
+      {
+        intro: "Tous les graphiques et la carte se mettront alors à jour avec vos propres données. Bonne exploration avec TimeLine EDB !"
+      },{
+        element: "#userDataHelp",
+        intro: "Retrouvez ce tutoriel à tout moment en cliquant sur cette icône."
       }],
     tooltipPosition: 'auto',
     tooltipClass:'customDefault',

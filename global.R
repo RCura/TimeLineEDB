@@ -8,6 +8,8 @@ library(leaflet) # For now : devtools::install_github("RCura/leaflet")
 library(ggthemes)
 library(ggmap)
 
+options(shiny.maxRequestSize = 8*1024^2)
+
 moisFr <- c(
   "janv.",
   "févr.",
@@ -32,9 +34,10 @@ colorPalette <- colorNumeric(
   )
 
 
-formatData <- function(rawData){
-  rawData %>%
+formatData <- function(rawData, tz){
+  formattedData <- rawData %>%
     # mutate(time = parse_datetime(Time, format = "%Y/%m/%d %H:%M:%S")) %>%
+    mutate(Time = with_tz(Time, tzone = tz)) %>%
     mutate(jour = day(Time)) %>%
     mutate(jourN = factor(weekdays(Time, abbreviate = TRUE), levels = joursFr)) %>%
     mutate(mois = month(Time)) %>%
@@ -43,6 +46,10 @@ formatData <- function(rawData){
     mutate(heure = hour(Time)) %>%
     mutate(minute = minute(Time)) %>%
     mutate(dhour = hour(Time) + minute(Time) / 60 + second(Time) / 3600)
+  if (nrow(formattedData) > 50E3){
+    formattedData <- formattedData %>%
+      sample_n(size = 50E3)
+  }
 }
 
 theme_timelineEDB <- function() {
@@ -73,9 +80,44 @@ theme_timelineEDB <- function() {
 
 
 rawData <- read_csv(file = "data/SelfPoints.csv") %>%
-  rename(Time = timestamp) %>%
   select(Time, X, Y)
 
-formattedData <- formatData(rawData)
+formattedData <- formatData(rawData,  "Europe/Paris")
+
+
+ZipPath <- "data/takeout-20160629T102959Z.zip"
+google_jsonZip_to_DF <- function(ZipPath, tz){
+  
+  # Extract JSON from ZIP
+  ## Detecting files inside ZIP
+  zipFiles <- unzip(ZipPath, list = TRUE)
+  jsonPath <- zipFiles[grepl(zipFiles$Name,pattern = ".json"),]
+  ## Unzipping
+  unzip(ZipPath, files = jsonPath$Name,
+        overwrite = TRUE,
+        junkpaths = TRUE,
+        exdir = tempdir())
+  extractedFile <- paste(tempdir(),basename(jsonPath$Name), sep = "/")
+  # Convert JSON to CSV
+  jsonFile <- tempfile(fileext = ".json")
+  ## Make sure not conflicting
+  file.rename(from = extractedFile, to = jsonFile)
+  csvFile <- tempfile(fileext = ".csv")
+  ## Python call
+  cmdCall <- sprintf("python %s %s --output %s --format csv",
+                     "src/location_history_json_converter.py",
+                     jsonFile,
+                     csvFile)
+  system(cmdCall)
+  ## Clean
+  file.remove(jsonFile)
+  
+  # Read CSV
+  resultDF <- read_csv(csvFile) %>%
+    separate(Location, into = c("Y", "X"),  sep = " ",  remove = TRUE, convert = TRUE)
+  
+  # Format it correctly
+  formatData(resultDF, tz)  
+}
 
 

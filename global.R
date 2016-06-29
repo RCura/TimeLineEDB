@@ -1,6 +1,7 @@
 library(shiny)
 library(readr)
 library(dplyr)
+library(tidyr)
 library(ggplot2)
 library(lubridate)
 library(leaflet) # For now : devtools::install_github("RCura/leaflet")
@@ -31,6 +32,19 @@ colorPalette <- colorNumeric(
   )
 
 
+formatData <- function(rawData){
+  rawData %>%
+    # mutate(time = parse_datetime(Time, format = "%Y/%m/%d %H:%M:%S")) %>%
+    mutate(jour = day(Time)) %>%
+    mutate(jourN = factor(weekdays(Time, abbreviate = TRUE), levels = joursFr)) %>%
+    mutate(mois = month(Time)) %>%
+    mutate(moisN = factor(months(Time, abbreviate = TRUE), levels = moisFr)) %>%
+    mutate(annee = year(Time)) %>%
+    mutate(heure = hour(Time)) %>%
+    mutate(minute = minute(Time)) %>%
+    mutate(dhour = hour(Time) + minute(Time) / 60 + second(Time) / 3600)
+}
+
 theme_timelineEDB <- function() {
   ret <- theme_solarized(base_family = "serif",
                     base_size = 11,
@@ -59,24 +73,9 @@ theme_timelineEDB <- function() {
 
 
 rawData <- read_csv(file = "data/SelfPoints.csv") %>%
-  select(X, Y, timestamp, accuracy)
+  rename(Time = timestamp) %>%
+  select(Time, X, Y)
 
-formattedData <- rawData %>%
-  mutate(time = parse_datetime(timestamp, format = "%Y/%m/%d %H:%M:%S")) %>%
-  mutate(jour = day(time)) %>%
-  mutate(jourN = factor(weekdays(time, abbreviate = TRUE), levels = joursFr)) %>%
-  mutate(mois = month(time)) %>%
-  mutate(moisN = factor(months(time, abbreviate = TRUE), levels = moisFr)) %>%
-  mutate(annee = year(time)) %>%
-  mutate(heure = hour(time)) %>%
-  mutate(minute = minute(time)) %>%
-  mutate(dhour = hour(time) + minute(time) / 60 + second(time) / 3600)
+formattedData <- formatData(rawData)
 
-locationData <- reactiveValues(
-    raw = rawData,
-    base = formattedData,
-    geofiltred = NA,
-    timefiltred = NA
-  )
 
-analysisData <- reactiveValues(homePoint = NA, workPoint = NA)

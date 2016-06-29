@@ -79,3 +79,36 @@ rawData <- read_csv(file = "data/SelfPoints.csv") %>%
 formattedData <- formatData(rawData)
 
 
+ZipPath <- "data/takeout-20160629T102959Z.zip"
+google_jsonZip_to_DF <- function(ZipPath){
+  
+  # Extract JSON from ZIP
+  ## Detecting files inside ZIP
+  zipFiles <- unzip(ZipPath, list = TRUE)
+  jsonPath <- zipFiles[grepl(zipFiles$Name,pattern = ".json"),]
+  ## Unzipping
+  unzip(ZipPath, files = jsonPath$Name,
+        overwrite = TRUE,
+        junkpaths = TRUE,
+        exdir = tempdir())
+  extractedFile <- paste(tempdir(),basename(jsonPath$Name), sep = "/")
+  # Convert JSON to CSV
+  jsonFile <- tempfile(fileext = ".json")
+  ## Make sure not conflicting
+  file.rename(from = extractedFile, to = jsonFile)
+  csvFile <- tempfile(fileext = ".csv")
+  ## Python call
+  cmdCall <- sprintf("python %s %s --output %s --format csv",
+                     "src/location_history_json_converter.py",
+                     jsonFile,
+                     csvFile)
+  system(cmdCall)
+  ## Clean
+  file.remove(jsonFile)
+  
+  # Read CSV
+  resultDF <- read_csv(csvFile) %>%
+    separate(Location, into = c("X", "Y"),  sep = " ",  remove = TRUE, convert = TRUE)
+}
+
+

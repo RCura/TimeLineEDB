@@ -62,18 +62,30 @@ shinyUI(
             )
           )
         ),
-        fluidRow(column(
-          1,
-          tags$a(
-            icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"),
-            href = "javascript:void(0);",
-            onclick = "userDataIntro();"
+        fluidRow(
+                 tags$input(id = "userSettings", type = "checkbox", class = "inv-checkbox"),
+                 tags$label('for' = "userSettings", span("Explorez vos propres données",  class = "btn btn-info"),
+                            onclick = "userDataIntro();"),
+                 tags$a(
+                   icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"),
+                   href = "javascript:void(0);",
+                   onclick = "userDataIntro();"
+                 )
+          ),
+        fluidRow(
+          conditionalPanel(condition = "input.userSettings == true",
+                           fluidRow(fileInput("userData",
+                                     label = "Chargez vos données", 
+                                     multiple = FALSE,
+                                    accept = "application/zip",
+                                     width = "100%")),
+                           fluidRow(selectInput("timezone", label = "Fuseau horaire",
+                                                choices = lubridate::olson_time_zones(),
+                                                multiple = FALSE,
+                                                selected = "Europe/Paris",
+                                                selectize = FALSE))
           )
         ),
-        column(
-          11,
-          fileInput("userData", "Explorez vos propres données", width = "100%")
-        )),
         fluidRow(
           HTML(
             "Timeline EDB a été développé par",

@@ -34,9 +34,10 @@ colorPalette <- colorNumeric(
   )
 
 
-formatData <- function(rawData){
+formatData <- function(rawData, tz){
   formattedData <- rawData %>%
     # mutate(time = parse_datetime(Time, format = "%Y/%m/%d %H:%M:%S")) %>%
+    mutate(Time = with_tz(Time, tzone = tz)) %>%
     mutate(jour = day(Time)) %>%
     mutate(jourN = factor(weekdays(Time, abbreviate = TRUE), levels = joursFr)) %>%
     mutate(mois = month(Time)) %>%
@@ -81,11 +82,11 @@ theme_timelineEDB <- function() {
 rawData <- read_csv(file = "data/SelfPoints.csv") %>%
   select(Time, X, Y)
 
-formattedData <- formatData(rawData)
+formattedData <- formatData(rawData,  "Europe/Paris")
 
 
 ZipPath <- "data/takeout-20160629T102959Z.zip"
-google_jsonZip_to_DF <- function(ZipPath){
+google_jsonZip_to_DF <- function(ZipPath, tz){
   
   # Extract JSON from ZIP
   ## Detecting files inside ZIP
@@ -116,7 +117,7 @@ google_jsonZip_to_DF <- function(ZipPath){
     separate(Location, into = c("Y", "X"),  sep = " ",  remove = TRUE, convert = TRUE)
   
   # Format it correctly
-  formatData(resultDF)  
+  formatData(resultDF, tz)  
 }
 
 

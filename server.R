@@ -11,11 +11,11 @@ shinyServer(function(session, input, output) {
   
   observe({
     req(input$userData)
-    locationData$base <- google_jsonZip_to_DF(input$userData$datapath)
+    locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
     locationData$geofiltred <- NA
     locationData$timefiltred <- NA
   })
-  
+
   output$map <- renderLeaflet({
     mapData <- locationData$base
     dataLength <- nrow(mapData)

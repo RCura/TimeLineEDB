@@ -3,14 +3,18 @@ library(shiny)
 shinyServer(function(session, input, output) {
   locationData <-
     reactiveValues(
-      raw = rawData,
       base = formattedData,
       geofiltred = NA,
       timefiltred = NA
     )
   analysisData <- reactiveValues(homePoint = NA, workPoint = NA)
   
-  
+  observe({
+    req(input$userData)
+    locationData$base <- google_jsonZip_to_DF(input$userData$datapath)
+    locationData$geofiltred <- NA
+    locationData$timefiltred <- NA
+  })
   
   output$map <- renderLeaflet({
     mapData <- locationData$base

@@ -8,6 +8,8 @@ library(leaflet) # For now : devtools::install_github("RCura/leaflet")
 library(ggthemes)
 library(ggmap)
 
+options(shiny.maxRequestSize = 8*1024^2)
+
 moisFr <- c(
   "janv.",
   "févr.",
@@ -111,7 +113,10 @@ google_jsonZip_to_DF <- function(ZipPath){
   
   # Read CSV
   resultDF <- read_csv(csvFile) %>%
-    separate(Location, into = c("X", "Y"),  sep = " ",  remove = TRUE, convert = TRUE)
+    separate(Location, into = c("Y", "X"),  sep = " ",  remove = TRUE, convert = TRUE)
+  
+  # Format it correctly
+  formatData(resultDF)  
 }
 
 

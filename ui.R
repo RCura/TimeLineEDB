@@ -72,7 +72,7 @@ shinyUI(
         ),
         column(
           11,
-          actionButton("userData", "Explorez vos propres données", width = "100%")
+          fileInput("userData", "Explorez vos propres données", width = "100%")
         )),
         fluidRow(
           HTML(

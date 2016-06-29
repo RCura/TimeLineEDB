@@ -4,6 +4,12 @@
 .customDefault { 
   color: black;
 }
+
+.introjs-tooltiptext a:link {
+    color: blue;
+    text-decoration: none;
+}
+
 .customDefault .introjs-skipbutton {
   border-radius: 0;
   color: red;
@@ -12,3 +18,9 @@
 .inv-checkbox {
   display:none;
 }
+
+.btn{
+border-radius: 0px;
+width: 100%;
+}
+

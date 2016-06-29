@@ -26,8 +26,8 @@ shinyServer(function(session, input, output) {
         layerId = "heatmap",
         lng = ~ X,
         lat = ~ Y,
-        intensity = (1 / dataLength) * 10 ,
-        minOpacity = 0.3,
+        intensity = (1 / dataLength) * 50,
+        minOpacity = 0.2,
         radius = 5,
         blur = 5,
         gradient = "GnBu"
@@ -206,8 +206,8 @@ shinyServer(function(session, input, output) {
         layerId = "heatmap",
         lng = ~ X,
         lat = ~ Y,
-        intensity = (1 / dataLength) * 10 ,
-        minOpacity = 0.1,
+        intensity = (1 / dataLength) * 50,
+        minOpacity = 0.2,
         radius = 5,
         blur = 5,
         gradient = "GnBu"
@@ -370,8 +370,8 @@ shinyServer(function(session, input, output) {
         layerId = "heatmap",
         lng = ~ X,
         lat = ~ Y,
-        intensity = (1 / dataLength) * 10 ,
-        minOpacity = 0.1,
+        intensity = (1 / dataLength) * 50 ,
+        minOpacity = 0.2,
         radius = 5,
         blur = 5,
         gradient = "GnBu"

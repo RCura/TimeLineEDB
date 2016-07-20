@@ -99,6 +99,10 @@ shinyUI(
           )
         )
       )
-    )
+    ),
+    checkboxInput("morePlots", "Plus de graphiques"),
+    conditionalPanel("input.morePlots", fluidRow(
+      column(8, plotOutput("test", brush = brushOpts(id = "calendar_brush", direction = "y")))
+    ))
   )
 )

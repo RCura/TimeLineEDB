@@ -7,6 +7,7 @@ library(lubridate)
 library(leaflet) # For now : devtools::install_github("RCura/leaflet")
 library(ggthemes)
 library(ggmap)
+library(stringi)
 
 options(shiny.maxRequestSize = 8*1024^2)
 
@@ -45,7 +46,8 @@ formatData <- function(rawData, tz){
     mutate(annee = year(Time)) %>%
     mutate(heure = hour(Time)) %>%
     mutate(minute = minute(Time)) %>%
-    mutate(dhour = hour(Time) + minute(Time) / 60 + second(Time) / 3600)
+    mutate(dhour = hour(Time) + minute(Time) / 60 + second(Time) / 3600) %>%
+    mutate(monthWeek = stri_datetime_fields(Time)$WeekOfMonth )
   if (nrow(formattedData) > 50E3){
     formattedData <- formattedData %>%
       sample_n(size = 50E3)

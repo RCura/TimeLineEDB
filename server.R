@@ -383,6 +383,39 @@ shinyServer(function(session, input, output) {
     }
   })
   
+  output$test <- renderPlot({
+    calendarBaseData <- locationData$base %>%
+      group_by(annee, moisN, monthWeek, jourN) %>%
+      summarise(count =  n()) %>%
+      mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
+    
+    
+    calendarPlot <- ggplot(calendarData, aes(monthWeek, jourN, fill = count)) +
+      geom_tile(colour="#333333", alpha = 0.8) +
+      facet_grid(annee~moisN) + 
+      scale_fill_gradient( guide = FALSE, high="#43a2ca",low="#333333") +
+      scale_x_discrete("") +
+      xlab("") +
+      ylab("") +
+      theme_timelineEDB()
+    
+    
+    if (length(locationData$geofiltred) > 1) {
+      
+      filtredData <- locationData$geofiltred %>%
+        group_by(annee, moisN, monthWeek, jourN) %>%
+        summarise(count =  n()) %>%
+        mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
+      
+      calendarPlot <- calendarPlot +
+        geom_tile(data = filtredData,colour="#333333", alpha = 0.8)
+    }
+    
+    calendarPlot
+    
+  },  bg = "transparent")
+  
+
   
   
 })

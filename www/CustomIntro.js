@@ -50,7 +50,7 @@ function startIntro(){
         intro: "Bienvenue dans l'application <b>TimeLine</b> <b>E</b>xploratory <b>D</b>ash<b>B</b>oard!"
       },
       { 
-        intro: "Ici, on explique l'objectif"
+        intro: 'Ici, on explique l\'objectif <br /> Test image : <br /> <img src="test.png">'
       },
       {
         intro: "Ici, on explique l'usage de l'application"

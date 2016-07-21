@@ -45,7 +45,7 @@ shinyUI(
         4,
         fluidRow(
           wellPanel(
-            h3("Analyse automatique"),
+            h3("Analyse automatique"),checkboxInput("revGeoCode", "Lancer les analyses"),
             tags$hr(),
             "D'après analyse automatique de vos données, on peut inférer ces informations vous concernant :",
             tags$hr(),

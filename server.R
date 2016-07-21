@@ -307,6 +307,7 @@ shinyServer(function(session, input, output) {
   })
   
   output$homeAddress <- renderText({
+    req(input$revGeoCode)
     homeData <- locationData$base %>%
       filter(heure > 19 | heure < 8) %>%
       filter(moisN != "juil.", mois != "août") %>%
@@ -329,6 +330,7 @@ shinyServer(function(session, input, output) {
   })
   
   output$workAddress <- renderText({
+    req(input$revGeoCode)
     workData <- locationData$base %>%
       filter(heure >= 14, heure <=  16) %>%
       filter(moisN != "juil.", mois != "août") %>%
@@ -384,31 +386,38 @@ shinyServer(function(session, input, output) {
   })
   
   output$test <- renderPlot({
-    calendarBaseData <- locationData$base %>%
-      group_by(annee, moisN, monthWeek, jourN) %>%
-      summarise(count =  n()) %>%
-      mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
-    
-    
-    calendarPlot <- ggplot(calendarData, aes(monthWeek, jourN, fill = count)) +
-      geom_tile(colour="#333333", alpha = 0.8) +
-      facet_grid(annee~moisN) + 
-      scale_fill_gradient( guide = FALSE, high="#43a2ca",low="#333333") +
-      scale_x_discrete("") +
-      xlab("") +
-      ylab("") +
-      theme_timelineEDB()
-    
     
     if (length(locationData$geofiltred) > 1) {
-      
-      filtredData <- locationData$geofiltred %>%
+      calendarFiltredData <- locationData$geofiltred %>%
         group_by(annee, moisN, monthWeek, jourN) %>%
         summarise(count =  n()) %>%
         mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
       
-      calendarPlot <- calendarPlot +
-        geom_tile(data = filtredData,colour="#333333", alpha = 0.8)
+      calendarPlot <- ggplot(calendarFiltredData, aes(monthWeek, jourN, fill = count)) +
+        geom_tile(colour="#333333", alpha = 0.8) +
+        facet_grid(annee~moisN) + 
+        scale_fill_gradient( guide = FALSE, high="red",low="#333333") +
+        scale_x_discrete("") +
+        xlab("") +
+        ylab("") +
+        theme_timelineEDB()
+      
+      
+    } else {
+      calendarBaseData <- locationData$base %>%
+        group_by(annee, moisN, monthWeek, jourN) %>%
+        summarise(count =  n()) %>%
+        mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
+      
+      
+      calendarPlot <- ggplot(calendarBaseData, aes(monthWeek, jourN, fill = count)) +
+        geom_tile(colour="#333333", alpha = 0.8) +
+        facet_grid(annee~moisN) + 
+        scale_fill_gradient( guide = FALSE, high="#43a2ca",low="#333333") +
+        scale_x_discrete("") +
+        xlab("") +
+        ylab("") +
+        theme_timelineEDB()
     }
     
     calendarPlot

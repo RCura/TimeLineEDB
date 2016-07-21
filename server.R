@@ -158,6 +158,14 @@ shinyServer(function(session, input, output) {
     noselection <- TRUE
     currentlyFiltred <- locationData$base
     
+    if (!is.null(input$yearplot_brush)) {
+      #yearfreq
+      timeSelection <- input$yearplot_brush
+      currentlyFiltred <- currentlyFiltred %>%
+        filter(annee >= timeSelection$xmin, annee <= timeSelection$xmax)
+      noselection <- FALSE
+    }
+    
     if (!is.null(input$daydensity_brush)) {
       #daydensity
       timeSelection <- input$daydensity_brush
@@ -385,7 +393,31 @@ shinyServer(function(session, input, output) {
     }
   })
   
-  output$test <- renderPlot({
+  output$yearPlot <- renderPlot({
+    yearfreqplot <- ggplot(data = locationData$base) +
+      geom_bar(
+        aes(annee, y = (..count..) / sum(..count..)),
+        fill = "#43a2ca",
+        alpha = 0.3,
+        colour = "#053144"
+      ) +
+      scale_y_continuous("Densité", labels = scales::percent) +
+      theme_timelineEDB()
+    
+    if (length(locationData$geofiltred) > 1) {
+      yearfreqplot <- yearfreqplot +
+        geom_bar(
+          data = locationData$geofiltred,
+          aes(annee, y = (..count..) / sum(..count..)),
+          fill = "red",
+          alpha = 0.3,
+          colour = "#67000d"
+        )
+    }
+    yearfreqplot
+  }, bg = "transparent")
+  
+  output$calendarPlot <- renderPlot({
     
     if (length(locationData$geofiltred) > 1) {
       calendarFiltredData <- locationData$geofiltred %>%
@@ -396,11 +428,13 @@ shinyServer(function(session, input, output) {
       calendarPlot <- ggplot(calendarFiltredData, aes(monthWeek, jourN, fill = count)) +
         geom_tile(colour="#333333", alpha = 0.8) +
         facet_grid(annee~moisN) + 
-        scale_fill_gradient( guide = FALSE, high="red",low="#333333") +
+        scale_fill_gradient(name="Densité", high="red",low="#333333") +
         scale_x_discrete("") +
         xlab("") +
         ylab("") +
-        theme_timelineEDB()
+        theme_timelineEDB() +
+        theme(legend.position="bottom") +
+        guides(fill = guide_legend(keywidth = 5, keyheight = 2))
       
       
     } else {
@@ -413,11 +447,13 @@ shinyServer(function(session, input, output) {
       calendarPlot <- ggplot(calendarBaseData, aes(monthWeek, jourN, fill = count)) +
         geom_tile(colour="#333333", alpha = 0.8) +
         facet_grid(annee~moisN) + 
-        scale_fill_gradient( guide = FALSE, high="#43a2ca",low="#333333") +
+        scale_fill_gradient(name="Densité", high="#43a2ca",low="#333333") +
         scale_x_discrete("") +
         xlab("") +
         ylab("") +
-        theme_timelineEDB()
+        theme_timelineEDB() +
+        theme(legend.position="bottom") +
+        guides(fill = guide_legend(keywidth = 5, keyheight = 2))
     }
     
     calendarPlot

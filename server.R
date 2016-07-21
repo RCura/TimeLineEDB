@@ -435,6 +435,7 @@ shinyServer(function(session, input, output) {
   }, bg = "transparent")
   
   output$calendarPlot <- renderPlot({
+    req(locationData$base)
     
     if (length(locationData$geofiltred) > 1) {
       calendarFiltredData <- locationData$geofiltred %>%
@@ -442,8 +443,8 @@ shinyServer(function(session, input, output) {
         summarise(count =  n()) %>%
         mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
       
-      calendarPlot <- ggplot(calendarFiltredData, aes(monthWeek, jourN, fill = count)) +
-        geom_tile(colour="#333333", alpha = 0.8) +
+      calendarPlot <- ggplot(locationData$base, aes(monthWeek, jourN, fill = count)) +
+        geom_tile(data =calendarFiltredData, colour="#333333", alpha = 0.8) +
         facet_grid(annee~moisN) + 
         scale_fill_gradient(name="Densité", high="red",low="#333333") +
         scale_x_discrete("") +

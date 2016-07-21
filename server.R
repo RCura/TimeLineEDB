@@ -11,9 +11,26 @@ shinyServer(function(session, input, output) {
   
   observe({
     req(input$userData)
+    thisMapProxy <- leafletProxy("map")
+    thisMapProxy %>%
+      clearHeatmap() %>%
+      removeDrawToolbar()
     locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
     locationData$geofiltred <- NA
     locationData$timefiltred <- NA
+    
+    thisMapProxy %>%
+      addDrawToolbar(
+        layerID = "selectbox",
+        polyline = FALSE,
+        circle = FALSE,
+        marker = FALSE,
+        edit = FALSE,
+        polygon = FALSE,
+        rectangle = TRUE,
+        remove = TRUE,
+        singleLayer = TRUE
+      )
   })
 
   output$map <- renderLeaflet({

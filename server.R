@@ -304,19 +304,30 @@ shinyServer(function(session, input, output) {
       )
   })
   
-  # # observe({
-  # #   if (input$map_selectbox_deleting){
-  # #     print("deleting...")
-  # #   }
-  # # })
-  # 
-  # observeEvent(input$map_selectbox_deleting,{
-  #   print("blob")
-  #   thisMapProxy <- leafletProxy("map")
-  #   thisMapProxy %>%
-  #     fitBounds(0,0,0,0)
-  #     
-  # })
+ # Change the default behavior of deleting : 
+ # the selectbox is deleted each time the user
+ # clicks on the garbage/delete-mode icon
+  observe({
+    currentDeleting <- input$map_selectbox_deleting
+    if (isTRUE(currentDeleting)){
+      thisMapProxy <- leafletProxy("map")
+      thisMapProxy %>%
+        removeDrawToolbar() %>%
+        addDrawToolbar(
+          layerID = "selectbox",
+          polyline = FALSE,
+          circle = FALSE,
+          marker = FALSE,
+          edit = FALSE,
+          polygon = FALSE,
+          rectangle = TRUE,
+          remove = TRUE,
+          singleLayer = TRUE
+        )
+    } else if (is.null(currentDeleting)){
+      locationData$geofiltred <- NA
+    }
+  })
   
   
   observeEvent(input$analysisWork, {

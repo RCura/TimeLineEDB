@@ -34,7 +34,7 @@ shinyServer(function(session, input, output) {
   })
 
   output$map <- renderLeaflet({
-    mapData <- locationData$base
+    mapData <- isolate(locationData$base)
     dataLength <- nrow(mapData)
     map <- leaflet(mapData) %>%
       addProviderTiles('CartoDB.DarkMatter',

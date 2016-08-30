@@ -3,6 +3,8 @@ library(shiny)
 shinyUI(
   fluidPage(
     theme = "slate-bootstrap.css",
+    useShinyjs(),
+    tags$style(appCSS),
     tags$head(
       tags$link(rel = "icon", type = "image/png", href = "favicon.png"),
       tags$title("TimeLineEDB"),
@@ -21,8 +23,8 @@ shinyUI(
         onclick = "startIntro();"
       )
     ),
-    fluidRow(column(
-      4, plotOutput("daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x"))
+    fluidRow(
+      column(4, plotOutput("daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x"))
     ),
     
     column(8,
@@ -75,16 +77,24 @@ shinyUI(
           ),
         fluidRow(
           conditionalPanel(condition = "input.userSettings == true",
-                           fluidRow(fileInput("userData",
-                                     label = "Chargez vos données", 
+                           fluidRow(
+                             column(6, fileInput("userData",
+                                     label = "Sélectionner vos données", 
                                      multiple = FALSE,
                                     accept = "application/zip",
                                      width = "100%")),
-                           fluidRow(selectInput("timezone", label = "Fuseau horaire",
+                             column(6,selectInput("timezone", label = "Fuseau horaire",
                                                 choices = lubridate::olson_time_zones(),
                                                 multiple = FALSE,
                                                 selected = "Europe/Paris",
-                                                selectize = FALSE))
+                                                selectize = FALSE))),
+                           withBusyIndicatorUI(
+                             actionButton("loadUserData",
+                                          label = "Charger vos données",
+                                          class="btn-info",
+                                          width="50%",
+                                          icon = icon(name = "map", lib = "font-awesome"))
+                           )
           )
         ),
         fluidRow(

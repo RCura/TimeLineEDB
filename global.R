@@ -9,9 +9,11 @@ suppressPackageStartupMessages({
   library(ggthemes)
   library(ggmap)
   library(stringi)
+  library(shinyjs)
 })
 
 options(shiny.maxRequestSize = 8*1024^2)
+source("src/helpers.R")
 
 moisFr <- c(
   "janv.",

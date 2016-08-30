@@ -9,28 +9,36 @@ shinyServer(function(session, input, output) {
     )
   analysisData <- reactiveValues(homePoint = NA, workPoint = NA)
   
-  observe({
+  
+  observeEvent(input$loadUserData,{
     req(input$userData)
-    thisMapProxy <- leafletProxy("map")
-    thisMapProxy %>%
-      clearHeatmap() %>%
-      removeDrawToolbar()
-    locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
-    locationData$geofiltred <- NA
-    locationData$timefiltred <- NA
-    
-    thisMapProxy %>%
-      addDrawToolbar(
-        layerID = "selectbox",
-        polyline = FALSE,
-        circle = FALSE,
-        marker = FALSE,
-        edit = FALSE,
-        polygon = FALSE,
-        rectangle = TRUE,
-        remove = TRUE,
-        singleLayer = TRUE
-      )
+    withBusyIndicatorServer("loadUserData", {
+      thisMapProxy <- leafletProxy("map")
+      thisMapProxy %>%
+        clearHeatmap() %>%
+        removeDrawToolbar()
+      showNotification(ui = "Conversion des données...", duration = NULL, closeButton = TRUE, id = "notifData", type = "message")
+      locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
+      removeNotification( id = "notifData")
+      locationData$geofiltred <- NA
+      locationData$timefiltred <- NA
+      showNotification(ui = "Mise à jour de la carte", duration = NULL, closeButton = TRUE, id = "notifMap", type = "message")
+      thisMapProxy %>%
+        addDrawToolbar(
+          layerID = "selectbox",
+          polyline = FALSE,
+          circle = FALSE,
+          marker = FALSE,
+          edit = FALSE,
+          polygon = FALSE,
+          rectangle = TRUE,
+          remove = TRUE,
+          singleLayer = TRUE
+        )
+      removeNotification( id = "notifMap")
+      
+    })
+
   })
 
   output$map <- renderLeaflet({
@@ -488,8 +496,6 @@ shinyServer(function(session, input, output) {
     calendarPlot
     
   },  bg = "transparent")
-  
-
   
   
 })

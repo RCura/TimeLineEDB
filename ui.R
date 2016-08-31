@@ -8,6 +8,7 @@ shinyUI(
     tags$head(
       tags$link(rel = "icon", type = "image/png", href = "favicon.png"),
       tags$title("TimeLineEDB"),
+      includeScript("www/analytics.js"),
       includeScript("www/intro.min.js"),
       includeCSS("www/introjs.min.css"),
       includeScript("www/CustomIntro.js"),

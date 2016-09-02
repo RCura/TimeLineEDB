@@ -50,17 +50,44 @@ function startIntro(){
         intro: "Bienvenue dans l'application <b>TimeLine</b> <b>E</b>xploratory <b>D</b>ash<b>B</b>oard!"
       },
       { 
-        intro: 'Ici, on explique l\'objectif <br /> Test image : <br /> <img src="test.png">'
+        intro: "Cette application va vous permettre d'explorer des données de localisation que Google possède sur ses utilisateurs " +
+        "( et peut-être sur vous ..) " +
+        "au sein d'une application dénommée Google TimeLine."
       },
       {
-        intro: "Ici, on explique l'usage de l'application"
+        intro: "L'objectif est de vous amener à comprendre des éléments de la vie privé" +
+        "d'un utilisateur dont on possède les données."
+      },
+            {
+        intro: "Ces données sont complexes et massives. Affichées toutes ensemble, elles se superposent sans" +
+        "donner de grandes informations sur l'individu suivi."
+      },
+            {
+        intro: 'Mais en se "promenant" dans ces données, on peut aussi discerner des éléments très privés.'
+      },
+            {
+        intro: "Pour se faire, on va faire appel aux méthodes de <b> l'analyse exploratoire interactive de données</b>."
+      },
+            {
+        intro: 'Les "composants grapihques" (cartes, diagrammes) présentés sur cette page sont interactifs.' +
+        "C'est-à-dire que vous pouvez effecter des sélections dedans, " +
+        "et que chacun réagit aux séléctions effectuées dans les autres."
       },
       {
-        intro : "On va maintenant présenter les composants un par un"
+        intro : "Pour faciliter la compréhension, on va maintenant présenter les composants un par un."
       },
       {
         element: '#map',
-        intro: "This is a map."
+        intro: "Vous disposez ici d'une carte montrant l'ensemble des localisations de l'individu." +
+        "<br />" +
+        'C\'est une carte de type <i>heatmap</i>, ou "carte de chaleur".' +
+        "<br />" +
+        "Les points proches sont superposés, et plus il y a de points superposés, plus la couleur s'approche du bleu."
+      },
+            {
+        element: '#map',
+        intro: "Un point très bleu est donc une zone dans laquelle l'individu s'est rendu très souvent." +
+        "C'est ce que l'on appelle un <i>hot-spot</i>, ou \"point chaud \"."
       },
       {
         element: '#daydensity',
@@ -104,13 +131,23 @@ function userDataIntro(){
         intro: "Vous pouvez maintenant explorer vos propres données, si toutefois Google en possède sur vous !"
       },
       {
-        intro: "Pour cela, rendez-vous sur la page suivante et connectez-vous avec votre compte Google: <br /><a href='https://www.google.com/maps/timeline' target='_blank'>https://www.google.com/maps/timeline</a>. Vous pourrez alors revenir sur l'application TimeLine EDB."
+        intro: "Pour cela, cliquez sur l'image suivante et connectez-vous avec votre compte Google.<br />" +
+        "<a href='https://www.google.com/maps/timeline' target='_blank'>" +
+        "<img src='img/google_timeline_home.png'>" +
+        "</a>"
       },{
         intro: "Si des données se sont bien affichées, il va falloir les télécharger depuis le serveur de Google afin de les insérer dans l'application."
       },{
-        intro: "Pour se faire, allez sur la page <a href='https://takeout.google.com/settings/takeout/custom/location_history?hl=fr&gl=FR' target='_blank'>suivante</a>, laissez les options par défaut, et cliquez sur Suivant."
+        intro: "Pour ce faire, cliquez sur l'image suivante, laissez les réglages par défaut (comme dans l'image) et cliquez sur suivant." +
+        "<a href='https://takeout.google.com/settings/takeout/custom/location_history?hl=fr&gl=FR' target='_blank'>" +
+        "<img src='img/google_takeout_home.png'>" +
+        "</a>"
       },{
-        intro: 'Vous pouvez alors cliquer sur "Créér une archive" et attendre que le fichier <i>zip</i> vous soit proposé en téléchargement.' 
+        intro: 'Vous pouvez alors cliquer sur "Créér une archive".' +
+        "<img src='img/google_takeout_export.png'>"
+      },{
+        intro: 'Et attendre que le fichier <i>zip</i> vous soit proposé, et le télécharger.' +
+        "<img src='img/google_takeout_download.png'>"
       },{
         intro: "Une fois ce <i>zip</i> téléchargé, vous pourrez l'entrer dans l'application."
       },

@@ -47,6 +47,15 @@ shinyServer(function(session, input, output) {
     js$launchIntro()
   })
   
+  observeEvent(input$mainHelp, {
+    js$launchIntro()
+    })
+  
+  observeEvent(input$userDataHelp,{
+    js$launchUserIntro()
+  })
+  
+  
   observeEvent(input$loadUserData,{
     req(input$userData)
     withBusyIndicatorServer("loadUserData", {

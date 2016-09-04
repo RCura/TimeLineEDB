@@ -13,7 +13,10 @@ suppressPackageStartupMessages({
   library(V8)
 })
 
-jsCode <- "shinyjs.launchIntro = function(){startIntro();}"
+jsCode <- "
+  shinyjs.launchIntro = function(){startIntro();};
+  shinyjs.launchUserIntro = function(){userDataIntro();}
+"
 
 options(shiny.maxRequestSize = 8*1024^2)
 source("src/helpers.R")

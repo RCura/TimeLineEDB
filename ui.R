@@ -15,16 +15,8 @@ shinyUI(
       includeScript("www/CustomIntro.js"),
       includeCSS("www/timelineEDB.css")
     ),
-    h2(
-      "TimeLine Exploratory DashBoard",
-      tags$a(
-        id = "mainHelp",
-        style = "float: right;",
-        icon(name = "question-circle", class = "fa-1x", lib = "font-awesome"),
-        href = "javascript:void(0);",
-        onclick = "startIntro();"
-      )
-    ),
+    column(11, h2("TimeLine Exploratory DashBoard")),
+    column(1, actionLink("mainHelp", label = "", icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"))),
     fluidRow(
       column(4, plotOutput("daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x"))
     ),
@@ -70,12 +62,7 @@ shinyUI(
                  tags$input(id = "userSettings", type = "checkbox", class = "inv-checkbox"),
                  tags$label('for' = "userSettings", span("Explorez vos propres données",  class = "btn btn-info"),
                             onclick = "userDataIntro();"),
-                 tags$a(
-                   id = "userDataHelp",
-                   icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"),
-                   href = "javascript:void(0);",
-                   onclick = "userDataIntro();"
-                 )
+                 actionLink(inputId = "userDataHelp", label = "",icon = icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"))
           ),
         fluidRow(
           conditionalPanel(condition = "input.userSettings == true",

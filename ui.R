@@ -4,6 +4,7 @@ shinyUI(
   fluidPage(
     theme = "slate-bootstrap.css",
     useShinyjs(),
+    extendShinyjs(text = jsCode),
     tags$style(appCSS),
     tags$head(
       tags$link(rel = "icon", type = "image/png", href = "favicon.png"),

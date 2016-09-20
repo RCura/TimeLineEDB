@@ -1,5 +1,8 @@
 library(shiny)
 
+
+function(request){
+
 shinyUI(
   fluidPage(
     theme = "slate-bootstrap.css",
@@ -24,7 +27,7 @@ shinyUI(
     
     column(8,
            tags$input(id = "mapSettings", type = "checkbox", class = "inv-checkbox"),
-           tags$label('for' = "mapSettings",  icon(name = "cogs", class = "fa-1x", lib = "font-awesome")),
+           tags$label('for' = "mapSettings", class="mapSettingsCheckBox", icon(name = "cogs", class = "fa-1x", lib = "font-awesome")),
            conditionalPanel(condition = "input.mapSettings == true",
                             checkboxInput("showClusters", label = "Afficher les clusters de points ?",  value = FALSE),
                             checkboxInput("fitToBounds", label = "Synchroniser l'étendue de la carte avec la sélection ?", value = FALSE)),
@@ -41,7 +44,7 @@ shinyUI(
       column(
         4,
         fluidRow(
-          wellPanel(
+          wellPanel(id="automaticAnalysis",
             h3("Analyse automatique"),checkboxInput("revGeoCode", "Lancer les analyses"),
             tags$hr(),
             "D'après analyse automatique de vos données, on peut inférer ces informations vous concernant :",
@@ -61,7 +64,7 @@ shinyUI(
         ),
         fluidRow(
                  tags$input(id = "userSettings", type = "checkbox", class = "inv-checkbox"),
-                 tags$label('for' = "userSettings", span("Explorez vos propres données",  class = "btn btn-info"),
+                 tags$label('for' = "userSettings", span("Explorez vos propres données",  class = "userSettingsCheckBox btn btn-info"),
                             onclick = "userDataIntro();"),
                  actionLink(inputId = "userDataHelp", label = "",icon = icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"))
           ),
@@ -106,3 +109,4 @@ shinyUI(
     )
   )
 )
+}

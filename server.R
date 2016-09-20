@@ -1,12 +1,12 @@
 library(shiny)
 
 shinyServer(function(session, input, output) {
-  locationData <-
-    reactiveValues(
+  locationData <- reactiveValues(
       base = formattedData,
       geofiltred = NA,
       timefiltred = NA
     )
+  
   analysisData <- reactiveValues(homePoint = NA, workPoint = NA)
   
   

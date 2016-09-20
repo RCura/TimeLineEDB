@@ -1,23 +1,94 @@
 library(shiny)
 
 shinyServer(function(session, input, output) {
-  locationData <-
-    reactiveValues(
+  locationData <- reactiveValues(
       base = formattedData,
       geofiltred = NA,
       timefiltred = NA
     )
+  
   analysisData <- reactiveValues(homePoint = NA, workPoint = NA)
   
-  observe({
+  
+  
+  showModal(modalDialog(size = "l",
+                        title = "Bienvenue dans TimeLine Exploratory Dashboard",
+                        HTML("Cette application web permet à ses utilisateurs d'explorer dynamiquement
+                             les traces GPS collectés par la société Google dans le cadre de son programme « Timeline ».
+                             Lorsqu'un individu possède un smartphone fonctionnant avec le système « Android », 
+                             celui-ci lui propose d'enregistrer régulièrement et automatiquement les coordonnées de l'endroit où il se trouve. 
+                             Ce choix effectué, les coordonnées ainsi que l'heure seront enregistrées, 
+                             environ toutes les 5 minutes, et communiquées aux serveurs de Google. 
+                             L'utilisateur peut alors les consulter sur un site dédié : 
+                             <a href='https://www.google.fr/maps/timeline' target='_blank'>Google Timeline</a>.<br /> 
+                             Ce site ne permet qu'une consultation jour par jour, 
+                             et les données y sont en grande partie masquées, 
+                             seuls les lieux identifiés par Google y apparaissant. 
+                             On peut télécharger ces données, massives, mais les outils pour les consulter et explorer manquent.
+                             <br />
+                             TimeLineEDB se propose de combler ce manque.
+                             <br />
+                             Lors d'une première visite, nous vous invitons à suivre le tutoriel afin de comprendre
+                             l'utilisation de TimeLine EDB.
+                             <br />
+                             Notez que vous pouvez toujours revenir au tutoriel en cliquant sur l'icone aide 
+                             (<i class='fa fa-question-circle-o' aria-hidden='true'></i>) 
+                             en haut à droite de l'application."),
+                        easyClose = FALSE,
+                        footer = tagList(
+                          column(6, actionButton(inputId = "showHelp", label = "Suivre le tutoriel", icon = icon("education", lib = "glyphicon"))),
+                          column(6, modalButton(label = "Entrer directement dans l'application", icon = icon("remove", lib = "glyphicon")))
+                        )
+  ))
+  
+  
+  observeEvent(input$showHelp,{
+    removeModal()
+    js$launchIntro()
+  })
+  
+  observeEvent(input$mainHelp, {
+    js$launchIntro()
+    })
+  
+  observeEvent(input$userDataHelp,{
+    js$launchUserIntro()
+  })
+  
+  
+  observeEvent(input$loadUserData,{
     req(input$userData)
-    locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
-    locationData$geofiltred <- NA
-    locationData$timefiltred <- NA
+    withBusyIndicatorServer("loadUserData", {
+      thisMapProxy <- leafletProxy("map")
+      thisMapProxy %>%
+        clearHeatmap() %>%
+        removeDrawToolbar()
+      showNotification(ui = "Conversion des données...", duration = NULL, closeButton = TRUE, id = "notifData", type = "message")
+      locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
+      removeNotification( id = "notifData")
+      locationData$geofiltred <- NA
+      locationData$timefiltred <- NA
+      showNotification(ui = "Mise à jour de la carte", duration = NULL, closeButton = TRUE, id = "notifMap", type = "message")
+      thisMapProxy %>%
+        addDrawToolbar(
+          layerID = "selectbox",
+          polyline = FALSE,
+          circle = FALSE,
+          marker = FALSE,
+          edit = FALSE,
+          polygon = FALSE,
+          rectangle = TRUE,
+          remove = TRUE,
+          singleLayer = TRUE
+        )
+      removeNotification( id = "notifMap")
+      
+    })
+
   })
 
   output$map <- renderLeaflet({
-    mapData <- locationData$base
+    mapData <- isolate(locationData$base)
     dataLength <- nrow(mapData)
     map <- leaflet(mapData) %>%
       addProviderTiles('CartoDB.DarkMatter',
@@ -158,6 +229,14 @@ shinyServer(function(session, input, output) {
     noselection <- TRUE
     currentlyFiltred <- locationData$base
     
+    if (!is.null(input$yearplot_brush)) {
+      #yearfreq
+      timeSelection <- input$yearplot_brush
+      currentlyFiltred <- currentlyFiltred %>%
+        filter(annee >= timeSelection$xmin, annee <= timeSelection$xmax)
+      noselection <- FALSE
+    }
+    
     if (!is.null(input$daydensity_brush)) {
       #daydensity
       timeSelection <- input$daydensity_brush
@@ -279,19 +358,30 @@ shinyServer(function(session, input, output) {
       )
   })
   
-  # # observe({
-  # #   if (input$map_selectbox_deleting){
-  # #     print("deleting...")
-  # #   }
-  # # })
-  # 
-  # observeEvent(input$map_selectbox_deleting,{
-  #   print("blob")
-  #   thisMapProxy <- leafletProxy("map")
-  #   thisMapProxy %>%
-  #     fitBounds(0,0,0,0)
-  #     
-  # })
+ # Change the default behavior of deleting : 
+ # the selectbox is deleted each time the user
+ # clicks on the garbage/delete-mode icon
+  observe({
+    currentDeleting <- input$map_selectbox_deleting
+    if (isTRUE(currentDeleting)){
+      thisMapProxy <- leafletProxy("map")
+      thisMapProxy %>%
+        removeDrawToolbar() %>%
+        addDrawToolbar(
+          layerID = "selectbox",
+          polyline = FALSE,
+          circle = FALSE,
+          marker = FALSE,
+          edit = FALSE,
+          polygon = FALSE,
+          rectangle = TRUE,
+          remove = TRUE,
+          singleLayer = TRUE
+        )
+    } else if (is.null(currentDeleting)){
+      locationData$geofiltred <- NA
+    }
+  })
   
   
   observeEvent(input$analysisWork, {
@@ -307,6 +397,7 @@ shinyServer(function(session, input, output) {
   })
   
   output$homeAddress <- renderText({
+    req(input$revGeoCode)
     homeData <- locationData$base %>%
       filter(heure > 19 | heure < 8) %>%
       filter(moisN != "juil.", mois != "août") %>%
@@ -329,6 +420,7 @@ shinyServer(function(session, input, output) {
   })
   
   output$workAddress <- renderText({
+    req(input$revGeoCode)
     workData <- locationData$base %>%
       filter(heure >= 14, heure <=  16) %>%
       filter(moisN != "juil.", mois != "août") %>%
@@ -383,6 +475,73 @@ shinyServer(function(session, input, output) {
     }
   })
   
+  output$yearPlot <- renderPlot({
+    yearfreqplot <- ggplot(data = locationData$base) +
+      geom_bar(
+        aes(annee, y = (..count..) / sum(..count..)),
+        fill = "#43a2ca",
+        alpha = 0.3,
+        colour = "#053144"
+      ) +
+      scale_y_continuous("Densité", labels = scales::percent) +
+      theme_timelineEDB()
+    
+    if (length(locationData$geofiltred) > 1) {
+      yearfreqplot <- yearfreqplot +
+        geom_bar(
+          data = locationData$geofiltred,
+          aes(annee, y = (..count..) / sum(..count..)),
+          fill = "red",
+          alpha = 0.3,
+          colour = "#67000d"
+        )
+    }
+    yearfreqplot
+  }, bg = "transparent")
+  
+  output$calendarPlot <- renderPlot({
+    req(locationData$base)
+    
+    if (length(locationData$geofiltred) > 1) {
+      calendarFiltredData <- locationData$geofiltred %>%
+        group_by(annee, moisN, monthWeek, jourN) %>%
+        summarise(count =  n()) %>%
+        mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
+      
+      calendarPlot <- ggplot(locationData$base, aes(monthWeek, jourN, fill = count)) +
+        geom_tile(data =calendarFiltredData, colour="#333333", alpha = 0.8) +
+        facet_grid(annee~moisN) + 
+        scale_fill_gradient(name="Densité", high="red",low="#333333") +
+        scale_x_discrete("") +
+        xlab("") +
+        ylab("") +
+        theme_timelineEDB() +
+        theme(legend.position="bottom") +
+        guides(fill = guide_legend(keywidth = 5, keyheight = 2))
+      
+      
+    } else {
+      calendarBaseData <- locationData$base %>%
+        group_by(annee, moisN, monthWeek, jourN) %>%
+        summarise(count =  n()) %>%
+        mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
+      
+      
+      calendarPlot <- ggplot(calendarBaseData, aes(monthWeek, jourN, fill = count)) +
+        geom_tile(colour="#333333", alpha = 0.8) +
+        facet_grid(annee~moisN) + 
+        scale_fill_gradient(name="Densité", high="#43a2ca",low="#333333") +
+        scale_x_discrete("") +
+        xlab("") +
+        ylab("") +
+        theme_timelineEDB() +
+        theme(legend.position="bottom") +
+        guides(fill = guide_legend(keywidth = 5, keyheight = 2))
+    }
+    
+    calendarPlot
+    
+  },  bg = "transparent")
   
   
 })

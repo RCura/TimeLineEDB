@@ -1,4 +1,6 @@
 # TimeLineEDB
+Robin Cura. (2016). TimeLine Exploratory DashBoard [web application]. Zenodo. http://doi.org/10.5281/zenodo.154528
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.154528.svg)](https://doi.org/10.5281/zenodo.154528)
 
 ## Cadre et objectifs de l'application :
 

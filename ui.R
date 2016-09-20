@@ -89,24 +89,24 @@ shinyUI(
                                           icon = icon(name = "map", lib = "font-awesome"))
                            )
           )
-        ),
-        fluidRow(
-          HTML(
-            "Timeline EDB a été développé par",
-            "<a href=\"http://www.parisgeo.cnrs.fr/spip.php?article6416&lang=fr\" target=\"_blank\">",
-            "Robin Cura</a>, 2016.",
-            "C'est un logiciel libre, sous licence ",
-            "<a href=\"https://fr.wikipedia.org/wiki/GNU_Affero_General_Public_License\" target=\"_blank\">AGPL</a>,",
-            "et ses sources sont consultables et ré-utilisables",
-            "<a href=\"https://github.com/RCura/TimeLineEDB\" target=\"_blank\">sur ce dépôt GitHub</a>."
-          )
         )
       )
     ),
     fluidRow(
       column(4, plotOutput("yearPlot", brush = brushOpts(id = "yearplot_brush", direction = "x"))),
       column(8, plotOutput("calendarPlot"))
+    ),
+    wellPanel(fluidRow(
+      HTML('<a href="https://doi.org/10.5281/zenodo.154528"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.154528.svg" alt="DOI"></a>',
+           "Timeline EDB a été développé par",
+           "<a href=\"http://www.parisgeo.cnrs.fr/spip.php?article6416&lang=fr\" target=\"_blank\">",
+           "Robin Cura</a>, 2016.",
+           "C'est un logiciel libre, sous licence ",
+           "<a href=\"https://fr.wikipedia.org/wiki/GNU_Affero_General_Public_License\" target=\"_blank\">AGPL</a>,",
+           "et ses sources sont consultables et ré-utilisables",
+           "<a href=\"https://github.com/RCura/TimeLineEDB\" target=\"_blank\">sur ce dépôt GitHub</a>."
+      )
     )
-  )
+  ))
 )
 }

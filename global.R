@@ -13,6 +13,8 @@ suppressPackageStartupMessages({
   library(V8)
 })
 
+#enableBookmarking(store = "server")
+
 jsCode <- "
   shinyjs.launchIntro = function(){startIntro();};
   shinyjs.launchUserIntro = function(){userDataIntro();}

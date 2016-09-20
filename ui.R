@@ -16,6 +16,7 @@ shinyUI(
       includeCSS("www/timelineEDB.css")
     ),
     column(11, h2("TimeLine Exploratory DashBoard")),
+    #column(1, bookmarkButton(label = "Sauvegarder l'état", icon = icon("save", lib = "glyphicon"))),
     column(1, actionLink("mainHelp", label = "", icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"))),
     fluidRow(
       column(4, plotOutput("daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x"))

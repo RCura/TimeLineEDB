@@ -60,10 +60,10 @@ formatData <- function(rawData, tz){
     mutate(minute = minute(Time)) %>%
     mutate(dhour = hour(Time) + minute(Time) / 60 + second(Time) / 3600) %>%
     mutate(monthWeek = stri_datetime_fields(Time)$WeekOfMonth )
-  if (nrow(formattedData) > 50E3){
-    formattedData <- formattedData %>%
-      sample_n(size = 50E3)
-  }
+  # if (nrow(formattedData) > 50E3){
+  #   formattedData <- formattedData %>%
+  #     sample_n(size = 50E3)
+  # }
 }
 
 theme_timelineEDB <- function() {

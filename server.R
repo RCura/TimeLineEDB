@@ -1,6 +1,7 @@
 library(shiny)
 
 shinyServer(function(session, input, output) {
+  options(shiny.maxRequestSize = 50 * 1024^2)
   locationData <- reactiveValues(
       base = formattedData,
       geofiltred = NA,
@@ -39,6 +40,8 @@ shinyServer(function(session, input, output) {
                              (<i class='fa fa-question-circle-o' aria-hidden='true'></i>) 
                              en haut à droite de l'application.
                              </div><div class=\"well well-sm text-center\">
+                             L'exploration de ses propres données n'est pas possible avec le navigateur
+                             Safari (<i class=\"fa fa-safari\" aria-hidden=\"true\"></i>).<br/>
                              Pour une navigation optimale, nous vous recommandons d'utiliser les
                              navigateurs Chrome (<i class=\"fa fa-chrome\" aria-hidden=\"true\"></i>)
                              ou Firefox (<i class=\"fa fa-firefox\" aria-hidden=\"true\"></i>).

@@ -13,9 +13,13 @@ shinyServer(function(session, input, output) {
   
   showModal(modalDialog(size = "l",
                         title = "Bienvenue dans TimeLine Exploratory Dashboard",
-                        HTML("Cette application web permet à ses utilisateurs d'explorer dynamiquement
-                             les traces GPS collectés par la société Google dans le cadre de son programme « Timeline ».
-                             Lorsqu'un individu possède un smartphone fonctionnant avec le système « Android », 
+                        HTML("<div class=\"h5 text-primary\">
+                             Cette application web permet à ses utilisateurs d'explorer dynamiquement
+                             les traces GPS collectés par la société Google (<i class=\"fa fa-google\" aria-hidden=\"true\"></i>)
+
+                             dans le cadre de son programme « Timeline ».
+                             Lorsqu'un individu possède un smartphone fonctionnant avec le système « Android 
+                             (<i class=\"fa fa-android\" aria-hidden=\"true\"></i>)», 
                              celui-ci lui propose d'enregistrer régulièrement et automatiquement les coordonnées de l'endroit où il se trouve. 
                              Ce choix effectué, les coordonnées ainsi que l'heure seront enregistrées, 
                              environ toutes les 5 minutes, et communiquées aux serveurs de Google. 
@@ -33,7 +37,12 @@ shinyServer(function(session, input, output) {
                              <br />
                              Notez que vous pouvez toujours revenir au tutoriel en cliquant sur l'icone aide 
                              (<i class='fa fa-question-circle-o' aria-hidden='true'></i>) 
-                             en haut à droite de l'application."),
+                             en haut à droite de l'application.
+                             </div><div class=\"well well-sm text-center\">
+                             Pour une navigation optimale, nous vous recommandons d'utiliser les
+                             navigateurs Chrome (<i class=\"fa fa-chrome\" aria-hidden=\"true\"></i>)
+                             ou Firefox (<i class=\"fa fa-firefox\" aria-hidden=\"true\"></i>).
+                             </div>"),
                         easyClose = FALSE,
                         footer = tagList(
                           column(6, actionButton(inputId = "showHelp", label = "Suivre le tutoriel", icon = icon("education", lib = "glyphicon"))),

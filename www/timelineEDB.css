@@ -24,3 +24,6 @@ border-radius: 0px;
 width: 100%;
 }
 
+.offset-top{
+  margin-top: 25px;
+}

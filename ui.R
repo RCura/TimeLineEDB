@@ -76,17 +76,13 @@ function(request){
                                                    multiple = FALSE,
                                                    accept = "application/zip",
                                                    width = "100%")),
-                               column(6,selectInput("timezone", label = "Fuseau horaire",
-                                                    choices = lubridate::olson_time_zones(),
-                                                    multiple = FALSE,
-                                                    selected = "Europe/Paris",
-                                                    selectize = FALSE))),
-                             withBusyIndicatorUI(
-                               actionButton("loadUserData",
+                             column(6,
+                                    withBusyIndicatorUI(
+                                      actionButton("loadUserData",
                                             label = "Charger vos données",
-                                            class="btn-info",
+                                            class="btn-info offset-top",
                                             width="50%",
-                                            icon = icon(name = "map", lib = "font-awesome"))
+                                            icon = icon(name = "map", lib = "font-awesome"))))
                              )
             )
           )

@@ -76,7 +76,7 @@ shinyServer(function(session, input, output) {
         clearHeatmap() %>%
         removeDrawToolbar()
       showNotification(ui = "Conversion des données...", duration = NULL, closeButton = TRUE, id = "notifData", type = "message")
-      locationData$base <- google_jsonZip_to_DF(input$userData$datapath, input$timezone)
+      locationData$base <- google_jsonZip_to_DF(input$userData$datapath)
       removeNotification( id = "notifData")
       locationData$geofiltred <- NA
       locationData$timefiltred <- NA

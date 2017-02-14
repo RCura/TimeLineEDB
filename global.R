@@ -1,11 +1,10 @@
+
 suppressPackageStartupMessages({
   library(shiny)
-  library(readr)
-  library(dplyr)
-  library(tidyr)
-  library(ggplot2)
+  library(tidyverse)
   library(lubridate)
-  library(leaflet) # For now : devtools::install_github("RCura/leaflet")
+  library(leaflet) # devtools::install_github("rstudio/leaflet")
+  library(leaflet.extras) # For devtools::install_github("bhaskarvk/leaflet.extras")
   library(ggthemes)
   library(ggmap)
   library(stringi)

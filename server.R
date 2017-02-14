@@ -153,8 +153,10 @@ shinyServer(function(session, input, output) {
         )
     }
     densityPlot
+  }, bg = "transparent",  type = "cairo")
     
   }, bg = "transparent")
+  }, bg = "transparent", type = "cairo")
   
   
   # Update spatial selection
@@ -478,7 +480,7 @@ shinyServer(function(session, input, output) {
         )
     }
     yearfreqplot
-  }, bg = "transparent")
+  }, bg = "transparent", type = "cairo")
   
   output$calendarPlot <- renderPlot({
     req(locationData$base)
@@ -510,8 +512,6 @@ shinyServer(function(session, input, output) {
     }
     
     calendarPlot
-    
-  },  bg = "transparent")
-  
+  },  bg = "transparent", type = "cairo")
   
 })

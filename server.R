@@ -482,42 +482,31 @@ shinyServer(function(session, input, output) {
   
   output$calendarPlot <- renderPlot({
     req(locationData$base)
+
+    if (length(locationData$geofiltred) > 1) {
+      filtredData <- locationData$geofiltred
+    } else {
+      filtredData <- locationData$base
+    }
+    
+    calendarData <- filtredData %>%
+      group_by(annee, moisN, monthWeek, jourN) %>%
+      summarise(count =  n()) %>%
+      mutate(jourN = factor(jourN, levels = rev(levels(jourN))))
+    
+    calendarPlot <- ggplot(locationData$base, aes(monthWeek, jourN, fill = count)) +
+      geom_tile(data = calendarData, colour = "#333333", alpha = 0.8) +
+      facet_grid(annee~moisN) + 
+      scale_x_discrete("") +
+      labs(x = "", y = "") +
+      theme_timelineEDB() +
+      theme(legend.position = "bottom") +
+      guides(fill = guide_legend(keywidth = 5, keyheight = 2))
     
     if (length(locationData$geofiltred) > 1) {
-      calendarFiltredData <- locationData$geofiltred %>%
-        group_by(annee, moisN, monthWeek, jourN) %>%
-        summarise(count =  n()) %>%
-        mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
-      
-      calendarPlot <- ggplot(locationData$base, aes(monthWeek, jourN, fill = count)) +
-        geom_tile(data =calendarFiltredData, colour="#333333", alpha = 0.8) +
-        facet_grid(annee~moisN) + 
-        scale_fill_gradient(name="Densité", high="red",low="#333333") +
-        scale_x_discrete("") +
-        xlab("") +
-        ylab("") +
-        theme_timelineEDB() +
-        theme(legend.position="bottom") +
-        guides(fill = guide_legend(keywidth = 5, keyheight = 2))
-      
-      
+      calendarPlot <- calendarPlot + scale_fill_gradient(name = "Densité", high = "red", low = "#333333")
     } else {
-      calendarBaseData <- locationData$base %>%
-        group_by(annee, moisN, monthWeek, jourN) %>%
-        summarise(count =  n()) %>%
-        mutate(jourN = factor(jourN, levels=rev(levels(jourN))))
-      
-      
-      calendarPlot <- ggplot(calendarBaseData, aes(monthWeek, jourN, fill = count)) +
-        geom_tile(colour="#333333", alpha = 0.8) +
-        facet_grid(annee~moisN) + 
-        scale_fill_gradient(name="Densité", high="#43a2ca",low="#333333") +
-        scale_x_discrete("") +
-        xlab("") +
-        ylab("") +
-        theme_timelineEDB() +
-        theme(legend.position="bottom") +
-        guides(fill = guide_legend(keywidth = 5, keyheight = 2))
+      calendarPlot <- calendarPlot + scale_fill_gradient(name = "Densité", high = "#43a2ca", low = "#333333")
     }
     
     calendarPlot

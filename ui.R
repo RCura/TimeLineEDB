@@ -64,27 +64,44 @@ function(request){
           ),
           fluidRow(
             tags$input(id = "userSettings", type = "checkbox", class = "inv-checkbox"),
-            tags$label('for' = "userSettings", span("Explorez vos propres données",  class = "userSettingsCheckBox btn btn-info"),
-                       onclick = "userDataIntro();"),
-            actionLink(inputId = "userDataHelp", label = "",icon = icon(name = "question-circle", class = "fa-3x", lib = "font-awesome"))
+            tags$label(
+              'for' = "userSettings",
+              span("Explorez vos propres données",  class = "userSettingsCheckBox btn btn-info"),
+              onclick = "userDataIntro();"
+            ),
+            actionLink(
+              inputId = "userDataHelp",
+              label = "",
+              icon = icon(
+                name = "question-circle",
+                class = "fa-3x",
+                lib = "font-awesome"
+              )
+            )
           ),
           fluidRow(
             conditionalPanel(condition = "input.userSettings == true",
                              fluidRow(
-                               column(6, fileInput("userData",
-                                                   label = "Sélectionner vos données", 
-                                                   multiple = FALSE,
-                                                   accept = "application/zip",
-                                                   width = "100%")),
-                             column(6,
-                                    withBusyIndicatorUI(
-                                      actionButton("loadUserData",
-                                            label = "Charger vos données",
-                                            class="btn-info offset-top",
-                                            width="50%",
-                                            icon = icon(name = "map", lib = "font-awesome"))))
-                             )
-            )
+                               column(
+                                 6,class = "loadUserDataFileInput",
+                                 fileInput(inputId = "userData",
+                                   label = "Sélectionner vos données",
+                                   multiple = FALSE,
+                                   accept = "application/zip",
+                                   width = "100%"
+                                 )
+                               ),
+                               column(6,
+                                      withBusyIndicatorUI(
+                                        actionButton(
+                                          "loadUserData",
+                                          label = "Charger vos données",
+                                          class = "btn-info offset-top loadUserDataButton",
+                                          width = "50%",
+                                          icon = icon(name = "map", lib = "font-awesome")
+                                        )
+                                      ))
+                             ))
           )
         )
       ),

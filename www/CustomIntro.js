@@ -28,7 +28,7 @@ function startIntro(){
         element: "#map",
         intro: "Afin de comprendre à quoi  correspondent ces points chauds, vous pouvez zoomer, dézoomer, mais aussi vous déplacer dans la carte."
       },{
-        element: ".mapSettingsCheckBox",
+        element: "#mapSettings",
         intro: "Des réglages pour la carte sont accessibles en cliquant sur cette icône."
       },{
         element: "#map",
@@ -101,8 +101,11 @@ function userDataIntro(){
       },{
         intro: "Une fois ce <i>zip</i> téléchargé, vous pourrez l'entrer dans l'application."
       },{
-        element: '#userData',
-        intro: "En cliquant sur ce menu."
+        element: '.loadUserDataFileInput',
+        intro: "En l'ajoutant dans ce menu."
+      },{
+        element: '.loadUserDataButton',
+        intro: "Et une fois en ligne, en le chargeant via ce bouton "
       },{
         intro: "Tous les graphiques et la carte se mettront alors à jour avec vos propres données. Bonne exploration avec TimeLine EDB !"
       },{

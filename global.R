@@ -47,7 +47,7 @@ colorPalette <- colorNumeric(
 
 
 formatData <- function(rawData){
-  formattedData <- rawData %>%
+  rawData %>%
     mutate(Time = with_tz(Time, tzone = "GMT")) %>%
     mutate(jour = day(Time)) %>%
     mutate(jourN = factor(weekdays(Time, abbreviate = TRUE), levels = joursFr)) %>%
@@ -80,8 +80,8 @@ theme_timelineEDB <- function() {
       ),
       legend.key = element_rect(fill = "transparent", colour = NA),
       legend.background = element_rect(fill = "transparent", colour = NA),
-      panel.background = element_rect(fill = "transparent", colour = NA),
-      plot.background = element_rect(fill = "transparent", colour = NA)
+      panel.background = element_blank(),
+      plot.background = element_blank()
     )
   ret
 }

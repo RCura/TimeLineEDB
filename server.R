@@ -40,30 +40,11 @@ shinyServer(function(session, input, output) {
   observeEvent(input$loadUserData,{
     req(input$userData)
     withBusyIndicatorServer("loadUserData", {
-      thisMapProxy <- leafletProxy("map")
-      thisMapProxy %>%
-        clearHeatmap() %>%
-        removeDrawToolbar()
       showNotification(ui = "Conversion des données...", duration = NULL, closeButton = TRUE, id = "notifData", type = "message")
       locationData$base <- google_jsonZip_to_DF(input$userData$datapath)
       removeNotification( id = "notifData")
       locationData$geofiltred <- NA
       locationData$timefiltred <- NA
-      showNotification(ui = "Mise à jour de la carte", duration = NULL, closeButton = TRUE, id = "notifMap", type = "message")
-      thisMapProxy %>%
-        addDrawToolbar(
-          layerID = "selectbox",
-          polyline = FALSE,
-          circle = FALSE,
-          marker = FALSE,
-          edit = FALSE,
-          polygon = FALSE,
-          rectangle = TRUE,
-          remove = TRUE,
-          singleLayer = TRUE
-        )
-      removeNotification( id = "notifMap")
-      
     })
 
   })
@@ -71,139 +52,93 @@ shinyServer(function(session, input, output) {
   output$map <- renderLeaflet({
     mapData <- isolate(locationData$base)
     dataLength <- nrow(mapData)
-    map <- leaflet(mapData) %>%
-      addProviderTiles('CartoDB.DarkMatter',
-                       group = "DarkMatter",
-                       options = providerTileOptions(opacity = 1)) %>%
-      addProviderTiles('Stamen.TonerLite',
-                       group = "TonerLite",
-                       options = providerTileOptions(opacity = 1)) %>%
-      addHeatmap(
-        layerId = "heatmap",
-        lng = ~ X,
-        lat = ~ Y,
-        intensity = (1 / dataLength) * 50,
-        minOpacity = 0.2,
-        radius = 5,
-        blur = 5,
-        gradient = "GnBu"
-      ) %>%
-      addLayersControl(
-        baseGroups = c("DarkMatter", "TonerLite"),
-        options = layersControlOptions(collapsed = TRUE)
-      ) %>%
-      addDrawToolbar(
-        layerID = "selectbox",
-        polyline = FALSE,
-        circle = FALSE,
-        marker = FALSE,
-        edit = FALSE,
-        polygon = FALSE,
-        rectangle = TRUE,
-        remove = TRUE,
-        singleLayer = TRUE
-      )
-    
-    map
+    leaflet(mapData) %>%
+      addProviderTiles(providers$CartoDB.DarkMatter) %>%
+      addHeatmap(layerId = "heatmap", lng = ~ X, lat = ~ Y, intensity = (1 / dataLength) * 50,
+                 minOpacity = 0.2, radius = 5, blur = 5, gradient = "GnBu")  %>%
+      addDrawToolbar(polylineOptions = FALSE, polygonOptions = FALSE, circleOptions = FALSE,
+                     markerOptions = FALSE, singleFeature = TRUE,
+                     editOptions = editToolbarOptions(edit = FALSE, remove = TRUE)) %>%
+      addControl(position = "bottomleft", html = HTML(mapSettingsText), className = "primary")
   })
   outputOptions(output, "map", suspendWhenHidden = FALSE)
   
-  observe({
-    if (isTRUE(input$showClusters)){
-      thisMapProxy <- leafletProxy("map", data = locationData$base)
-      thisMapProxy %>%
-        addMarkers(
-          lng = ~ X,
-          lat = ~ Y,
-          clusterOptions = markerClusterOptions(),
-          group = "Clusters"
-        )
-    } else {
-      thisMapProxy <- leafletProxy("map", data = locationData$base)
-      thisMapProxy %>%
-        clearGroup(group = "Clusters")
-    }
-    
-  })
-  
+
   output$daydensity <- renderPlot({
     densityPlot <-  ggplot(locationData$base, aes(dhour))  +
-      geom_density(
-        col = "#053144",
-        fill = "#43a2ca",
-        alpha = 0.3,
-        adjust = 0.75
-      ) +
-      scale_x_continuous("Heure",
-                         breaks = c(0, 6, 12, 18, 24),
-                         minor_breaks = c(3, 9, 15, 21)) +
+      geom_density(col = "#053144", fill = "#43a2ca", alpha = 0.3, adjust = 0.75) +
+      scale_x_continuous("Heure", breaks = c(0, 6, 12, 18, 24),
+                         minor_breaks = c(3, 9, 15, 21),
+                         labels = function(x){paste(x, "h")}) +
       scale_y_continuous("Densité", labels = scales::percent) +
       theme_timelineEDB()
     
-    
     if (length(locationData$geofiltred) > 1) {
       densityPlot <- densityPlot +
-        geom_density(
-          data = locationData$geofiltred,
-          aes(dhour),
-          col = "#67000d",
-          fill = "red",
-          alpha = 0.3,
-          adjust = 0.75
-        )
+        geom_density(data = locationData$geofiltred, aes(dhour),
+                     col = "#67000d", fill = "red", alpha = 0.3, adjust = 0.75)
     }
     densityPlot
   }, bg = "transparent",  type = "cairo")
+  
+  output$dayfreq <- renderPlot({
+    dayfreqplot <- ggplot(data = locationData$base) +
+      geom_bar(aes(jourN, y = (..count..) / sum(..count..)),
+               fill = "#43a2ca", alpha = 0.3, colour = "#053144") +
+      scale_y_continuous("Densité", labels = scales::percent) +
+      theme_timelineEDB()
     
-  }, bg = "transparent")
+    if (length(locationData$geofiltred) > 1) {
+      dayfreqplot <- dayfreqplot +
+        geom_bar(data = locationData$geofiltred,
+          aes(jourN, y = (..count..) / sum(..count..)),
+          fill = "red", alpha = 0.3, colour = "#67000d")
+    }
+    dayfreqplot
+  }, bg = "transparent", type = "cairo")
+  
+  output$monthfreq <- renderPlot({
+    monthfreqplot <- ggplot(data = locationData$base) +
+      geom_bar(aes(moisN, y = (..count..) / sum(..count..)),
+               fill = "#43a2ca", alpha = 0.3, colour = "#053144") +
+      scale_y_continuous("Densité", labels = scales::percent) +
+      theme_timelineEDB()
+    
+    if (length(locationData$geofiltred) > 1) {
+      monthfreqplot <- monthfreqplot +
+        geom_bar(data = locationData$geofiltred,
+          aes(moisN, y = (..count..) / sum(..count..)),
+          fill = "red", alpha = 0.3, colour = "#67000d")
+    }
+    monthfreqplot
   }, bg = "transparent", type = "cairo")
   
   
   # Update spatial selection
   observe({
-    req(input$map_selectbox_features)
-    
-    selectionFeatures <- input$map_selectbox_features
-    if (length(selectionFeatures$features) > 0) {
-      thisFeature <- selectionFeatures$features[[1]]
-      thisFeatCoordinates <- unlist(thisFeature$geometry$coordinates)
-      featCoordsDF <-
-        as.data.frame(t(matrix(data = thisFeatCoordinates, nrow = 2)))
-      colnames(featCoordsDF) <- c("X", "Y")
-      thisBounds <- featCoordsDF %>%
-        summarise_each(funs = funs(min, max)) %>%
-        as.vector()
+    req(input$map_draw_all_features)
+    if (length(input$map_draw_all_features$features) > 0) {
+      coordsSelectBox <- unlist(input$map_draw_all_features$features[[1]]$geometry$coordinates)[c(1,2,4,5)]
       locationData$geofiltred <- locationData$base %>%
-        filter(X >= thisBounds$X_min, X <= thisBounds$X_max) %>%
-        filter(Y >= thisBounds$Y_min, Y <= thisBounds$Y_max)
+        filter(X >= coordsSelectBox[1], X <= coordsSelectBox[4]) %>%
+        filter(Y >= coordsSelectBox[2], Y <= coordsSelectBox[3])
     } else {
       locationData$geofiltred <- NA
     }
   })
   
   # Zoom map on spatial selection
-  observe({
-    req(input$fitToBounds)
-    if (length(locationData$geofiltred) > 1) {
-      mapData <- locationData$geofiltred
-    } else {
-      mapData <- locationData$base
+  observeEvent(input$map_draw_all_features,{
+    req(input$map_draw_all_features, input$fitToBounds)
+    if (length(input$map_draw_all_features$features) > 0) {
+      coordsSelectBox <- unlist(input$map_draw_all_features$features[[1]]$geometry$coordinates)[c(1,2,4,5)]
+      proxy <- leafletProxy('map')
+      proxy %>%
+        fitBounds(lng1 = coordsSelectBox[1],
+                  lng2 = coordsSelectBox[4],
+                  lat1 = coordsSelectBox[2],
+                  lat2 =  coordsSelectBox[3])
     }
-    
-    thisBounds <- mapData %>%
-      select(X, Y) %>%
-      summarise_each(funs = funs(min, max)) %>%
-      as.vector()
-    dataLength <- nrow(mapData)
-    thisMapProxy <- leafletProxy("map", data = mapData)
-    thisMapProxy %>%
-      fitBounds(
-        lng1 = thisBounds$X_min,
-        lat1 = thisBounds$Y_min,
-        lng2 = thisBounds$X_max,
-        lat2 = thisBounds$Y_max
-      )
-    
   })
   
   
@@ -254,11 +189,10 @@ shinyServer(function(session, input, output) {
       locationData$timefiltred <- currentlyFiltred
     }
   })
-  
-  
-  
+
   # Update heatmap on time selection
   observe({
+    req(locationData$base)
     if (length(locationData$timefiltred) > 1) {
       mapData <- locationData$timefiltred
     } else {
@@ -268,67 +202,11 @@ shinyServer(function(session, input, output) {
     thisMapProxy <- leafletProxy("map", data = mapData)
     thisMapProxy %>%
       clearHeatmap() %>%
-      addHeatmap(
-        layerId = "heatmap",
-        lng = ~ X,
-        lat = ~ Y,
-        intensity = (1 / dataLength) * 50,
-        minOpacity = 0.2,
-        radius = 5,
-        blur = 5,
-        gradient = "GnBu"
-      )
-    
+      addHeatmap(layerId = "heatmap", lng = ~ X, lat = ~ Y, intensity = (1 / dataLength) * 50,
+                 minOpacity = 0.2, radius = 5, blur = 5, gradient = "GnBu")
   })
   
-  output$dayfreq <- renderPlot({
-    dayfreqplot <- ggplot(data = locationData$base) +
-      geom_bar(
-        aes(jourN, y = (..count..) / sum(..count..)),
-        fill = "#43a2ca",
-        alpha = 0.3,
-        colour = "#053144"
-      ) +
-      scale_y_continuous("Densité", labels = scales::percent) +
-      theme_timelineEDB()
-    
-    if (length(locationData$geofiltred) > 1) {
-      dayfreqplot <- dayfreqplot +
-        geom_bar(
-          data = locationData$geofiltred,
-          aes(jourN, y = (..count..) / sum(..count..)),
-          fill = "red",
-          alpha = 0.3,
-          colour = "#67000d"
-        )
-    }
-    dayfreqplot
-  }, bg = "transparent")
-  
-  output$monthfreq <- renderPlot({
-    monthfreqplot <- ggplot(data = locationData$base) +
-      geom_bar(
-        aes(moisN, y = (..count..) / sum(..count..)),
-        fill = "#43a2ca",
-        alpha = 0.3,
-        colour = "#053144"
-      ) +
-      scale_y_continuous("Densité", labels = scales::percent) +
-      theme_timelineEDB()
-    
-    if (length(locationData$geofiltred) > 1) {
-      monthfreqplot <- monthfreqplot +
-        geom_bar(
-          data = locationData$geofiltred,
-          aes(moisN, y = (..count..) / sum(..count..)),
-          fill = "red",
-          alpha = 0.3,
-          colour = "#67000d"
-        )
-    }
-    monthfreqplot
-  }, bg = "transparent")
-  
+  # Zoom on Home
   observeEvent(input$analysisHome, {
     thisMapProxy <- leafletProxy("map")
     
@@ -341,32 +219,7 @@ shinyServer(function(session, input, output) {
       )
   })
   
- # Change the default behavior of deleting : 
- # the selectbox is deleted each time the user
- # clicks on the garbage/delete-mode icon
-  observe({
-    currentDeleting <- input$map_selectbox_deleting
-    if (isTRUE(currentDeleting)){
-      thisMapProxy <- leafletProxy("map")
-      thisMapProxy %>%
-        removeDrawToolbar() %>%
-        addDrawToolbar(
-          layerID = "selectbox",
-          polyline = FALSE,
-          circle = FALSE,
-          marker = FALSE,
-          edit = FALSE,
-          polygon = FALSE,
-          rectangle = TRUE,
-          remove = TRUE,
-          singleLayer = TRUE
-        )
-    } else if (is.null(currentDeleting)){
-      locationData$geofiltred <- NA
-    }
-  })
-  
-  
+  # Zoom on Work
   observeEvent(input$analysisWork, {
     thisMapProxy <- leafletProxy("map")
     
@@ -426,37 +279,6 @@ shinyServer(function(session, input, output) {
     ))
   })
   
-  # This is an ugly trick :
-  # Leaflet.draw & Leaflet.heat are conflicting
-  # When a heatmap is displayed, it's not possible
-  # to delete a drawing
-  # Thus, when delete is triggered, (_deleting == TRUE)
-  # I remove the heatmap
-  # And add it back when deleting session is finished (_deleting == NULL)
-  observe({
-    if (length(isolate(locationData$timefiltred)) > 1) {
-      mapData <- isolate(locationData$timefiltred)
-    } else {
-      mapData <- isolate(locationData$base)
-    }
-    dataLength <- nrow(mapData)
-    thisMapProxy <- leafletProxy("map", data = mapData)
-
-    if (isTRUE(input$map_selectbox_deleting)){
-      thisMapProxy %>% removeHeatmap("heatmap")
-    } else if (is.null(input$map_selectbox_deleting)){
-      thisMapProxy %>% addHeatmap(
-        layerId = "heatmap",
-        lng = ~ X,
-        lat = ~ Y,
-        intensity = (1 / dataLength) * 50 ,
-        minOpacity = 0.2,
-        radius = 5,
-        blur = 5,
-        gradient = "GnBu"
-      )
-    }
-  })
   
   output$yearPlot <- renderPlot({
     yearfreqplot <- ggplot(data = locationData$base) +

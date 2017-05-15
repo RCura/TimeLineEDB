@@ -30,7 +30,7 @@ function(request) {
       )),
       fluidRow(
         column(4, plotOutput(
-          "daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x")
+          "daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x", resetOnNew = FALSE)
         )),
         
         column( 8, leafletOutput("map", height = "450px")
@@ -40,10 +40,10 @@ function(request) {
       fluidRow(
         column(4,
                plotOutput(
-                 "dayfreq", brush = brushOpts(id = "dayfreq_brush", direction = "x")
+                 "dayfreq", brush = brushOpts(id = "dayfreq_brush", direction = "x", resetOnNew = FALSE)
                )),
         column(4, plotOutput(
-          "monthfreq", brush = brushOpts(id = "monthfreq_brush", direction = "x")
+          "monthfreq", brush = brushOpts(id = "monthfreq_brush", direction = "x", resetOnNew = FALSE)
         )),
         column(
           4,
@@ -111,7 +111,7 @@ function(request) {
         )
       ),
       fluidRow(column(
-        4, plotOutput("yearPlot", brush = brushOpts(id = "yearplot_brush", direction = "x"))
+        4, plotOutput("yearPlot", brush = brushOpts(id = "yearplot_brush", direction = "x", resetOnNew = FALSE))
       ),
       column(8, plotOutput("calendarPlot"))),
       wellPanel(fluidRow(sourceHTML))

@@ -87,7 +87,8 @@ theme_timelineEDB <- function() {
 }
 
 
-rawData <- read_csv(file = "data/SelfPoints.csv") %>%
+rawData <- read_csv(file = "data/SelfPoints.csv",
+                    col_types = c("ddiTi")) %>%
   select(Time, X, Y)
 
 formattedData <- formatData(rawData)

@@ -2,6 +2,12 @@
 Robin Cura. (2016). TimeLine Exploratory DashBoard [web application]. Zenodo. http://doi.org/10.5281/zenodo.154528
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.154528.svg)](https://doi.org/10.5281/zenodo.154528)
 
+Article associé :
+
+Cura Robin, « [“TimeLineEDB”, application web d’exploration interactive de données de géolocalisation](http://mappemonde.mgm.fr/120geov1/) », M@ppemonde, 120, 2015/4, 2017 - http://mappemonde.mgm.fr/120geov1/
+
+
+
 ## Cadre et objectifs de l'application :
 
 Cette application web permet à ses utilisateurs d'explorer dynamiquement les traces GPS collectés par la société Google dans le cadre de son programme « Timeline ». Lorsqu'un individu possède un smartphone fonctionnant avec le système « Android », celui-ci lui propose d'enregistrer régulièrement et automatiquement les coordonnées de l'endroit où il se trouve. Ce choix effectué, les coordonnées ainsi que l'heure seront enregistrées, environ toutes les 5 minutes, et communiquées aux serveurs de Google. L'utilisateur peut alors les consulter sur un site dédié : https://www.google.fr/maps/timeline. Ce site ne permet qu'une consultation jour par jour, et les données y sont en grande partie masquées, seuls les lieux identifiés par Google y apparaissant. On peut télécharger ces données, massives, mais les outils pour les consulter et explorer manquent.

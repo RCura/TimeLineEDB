@@ -23,9 +23,7 @@ function(request) {
         "mainHelp",
         label = "",
         icon(
-          name = "question-circle",
-          class = "fa-3x",
-          lib = "font-awesome"
+          name = "question-circle", class = "fa-3x", lib = "font-awesome"
         )
       )),
       fluidRow(

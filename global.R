@@ -1,5 +1,6 @@
 
 suppressPackageStartupMessages({
+  library(jqr)
   library(shiny)
   library(tidyverse)
   library(lubridate)
@@ -11,7 +12,7 @@ suppressPackageStartupMessages({
   library(shinyjs)
   library(V8)
 })
-
+options(shiny.maxRequestSize = 8*1024^2)
 #enableBookmarking(store = "server")
 
 jsCode <- "
@@ -19,23 +20,10 @@ jsCode <- "
   shinyjs.launchUserIntro = function(){userDataIntro();}
 "
 
-options(shiny.maxRequestSize = 8*1024^2)
 source("src/helpers.R")
 
-moisFr <- c(
-  "janv.",
-  "févr.",
-  "mars",
-  "avril",
-  "mai",
-  "juin",
-  "juil.",
-  "août",
-  "sept.",
-  "oct.",
-  "nov.",
-  "déc."
-)
+moisFr <- c( "janv.", "févr.", "mars", "avril", "mai","juin",
+             "juil.", "août", "sept.", "oct.", "nov.", "déc.")
 
 joursFr <- c("lun.", "mar.", "mer.", "jeu.",
              "ven.", "sam.", "dim.")
@@ -48,7 +36,7 @@ colorPalette <- colorNumeric(
 
 formatData <- function(rawData){
   rawData %>%
-    mutate(Time = with_tz(Time, tzone = "GMT")) %>%
+    # mutate(Time = with_tz(Time, tzone = "GMT")) %>%
     mutate(jour = day(Time)) %>%
     mutate(jourN = factor(weekdays(Time, abbreviate = TRUE), levels = joursFr)) %>%
     mutate(mois = month(Time)) %>%
@@ -60,33 +48,7 @@ formatData <- function(rawData){
     mutate(monthWeek = stri_datetime_fields(Time)$WeekOfMonth )
 }
 
-theme_timelineEDB <- function() {
-  ret <- theme_solarized(base_family = "serif",
-                    base_size = 11,
-                    light = FALSE) +
-    theme(
-      axis.text = element_text(colour = "white", size =  10),
-      axis.title.x = element_blank(),
-      axis.title.y = element_blank(),
-      panel.grid.major = element_line(
-        colour = "gray50",
-        size = 0.3,
-        linetype = "longdash"
-      ),
-      panel.grid.minor = element_line(
-        colour = "gray40",
-        size = 0.2,
-        linetype = "dotdash"
-      ),
-      legend.key = element_rect(fill = "transparent", colour = NA),
-      legend.background = element_rect(fill = "transparent", colour = NA),
-      panel.background = element_blank(),
-      plot.background = element_blank()
-    )
-  ret
-}
-
-theme_timelineEDB2 <- function(){
+theme_timelineEDB <- function(){
   ret <- theme_bw(base_family = "serif", base_size = 11) +
     theme(text = element_text(colour = "white", size = 10),
           title = element_text(color = "white"),
@@ -103,14 +65,10 @@ theme_timelineEDB2 <- function(){
           #panel.border = element_rect(fill = "#272B30", colour = NULL, linetype = 0),
           panel.grid = element_line(color = "#272B30"),
           panel.grid.major = element_line(
-            colour = "gray50",
-            size = 0.3,
-            linetype = "longdash"
+            colour = "gray50", size = 0.3, linetype = "longdash"
           ),
           panel.grid.minor = element_line(
-            colour = "gray40",
-            size = 0.2,
-            linetype = "dotdash"
+            colour = "gray40", size = 0.2, linetype = "dotdash"
           ),
           plot.background = element_rect(fill ="#272B30", colour = "#272B30", linetype = 0)
     )
@@ -119,101 +77,38 @@ theme_timelineEDB2 <- function(){
 
 
 rawData <- read_csv(file = "data/SelfPoints.csv",
-                    col_types = c("ddiTi")) %>%
-  select(Time, X, Y)
+                    col_types = c("ddiTi"),
+                    progress = FALSE) %>%
+  dplyr::select(Time, X, Y)
 
 formattedData <- formatData(rawData)
 
-
-ZipPath <- "data/takeout-20160629T102959Z.zip"
-google_jsonZip_to_DF <- function(ZipPath){
-  
+locationHistory_zippedJson_to_DF <- function(ZipPath){
   # Extract JSON from ZIP
   ## Detecting files inside ZIP
   zipFiles <- unzip(ZipPath, list = TRUE)
   jsonPath <- zipFiles[grepl(zipFiles$Name,pattern = ".json"),]
   ## Unzipping
+  tmpDir <- tempfile()
   unzip(ZipPath, files = jsonPath$Name,
         overwrite = TRUE,
         junkpaths = TRUE,
-        exdir = tempdir())
-  extractedFile <- paste(tempdir(),basename(jsonPath$Name), sep = "/")
-  # Convert JSON to CSV
-  jsonFile <- tempfile(fileext = ".json")
-  ## Make sure not conflicting
-  file.rename(from = extractedFile, to = jsonFile)
-  csvFile <- tempfile(fileext = ".csv")
-  ## Python call
-  cmdCall <- sprintf("python %s %s --output %s --format csv",
-                     "src/location_history_json_converter.py",
-                     jsonFile,
-                     csvFile)
-  system(cmdCall)
-  ## Clean
-  file.remove(jsonFile)
-  
-  # Read CSV
-  resultDF <- read_csv(csvFile) %>%
-    separate(Location, into = c("Y", "X"),  sep = " ",  remove = TRUE, convert = TRUE)
-  
-  # Format it correctly
-  formatData(resultDF)  
+        exdir = tmpDir)
+  jsonFile <- paste(tmpDir,basename(jsonPath$Name), sep = "/")
+  # Reading JSON
+  raw_data <- read_lines(jsonFile, progress = FALSE)
+  # Filter JSON with `jq` and convert it to tibble
+  resultDF <- raw_data %>%
+    jq('[.locations[] | {ts : .timestampMs, lat : .latitudeE7, long : .longitudeE7}]') %>%
+    jsonlite::fromJSON() %>%
+    as_tibble() %>%
+    mutate(X = long / 1E7,
+           Y = lat / 1E7,
+           ts = as.numeric(ts)/1E3,
+           Time = as.POSIXct(ts, origin = "1970-01-01")) %>%
+    dplyr::select(Time, Y, X)
+  # Add properly detailed time columns
+  formatData(resultDF)
 }
 
-modalText <- "<div class=\"h5 text-primary\">
-Cette application web permet à ses utilisateurs d'explorer dynamiquement
-les traces GPS collectés par la société Google (<i class=\"fa fa-google\" aria-hidden=\"true\"></i>)
-
-dans le cadre de son programme « Timeline ».
-Lorsqu'un individu possède un smartphone fonctionnant avec le système « Android 
-(<i class=\"fa fa-android\" aria-hidden=\"true\"></i>)», 
-celui-ci lui propose d'enregistrer régulièrement et automatiquement les coordonnées de l'endroit où il se trouve. 
-Ce choix effectué, les coordonnées ainsi que l'heure seront enregistrées, 
-environ toutes les 5 minutes, et communiquées aux serveurs de Google. 
-L'utilisateur peut alors les consulter sur un site dédié : 
-<a href='https://www.google.fr/maps/timeline' target='_blank'>Google Timeline</a>.<br /> 
-Ce site ne permet qu'une consultation jour par jour, 
-et les données y sont en grande partie masquées, 
-seuls les lieux identifiés par Google y apparaissant. 
-On peut télécharger ces données, massives, mais les outils pour les consulter et explorer manquent.
-<br />
-TimeLineEDB se propose de combler ce manque.
-<br />
-Lors d'une première visite, nous vous invitons à suivre le tutoriel afin de comprendre
-l'utilisation de TimeLine EDB.
-<br />
-Notez que vous pouvez toujours revenir au tutoriel en cliquant sur l'icone aide 
-(<i class='fa fa-question-circle-o' aria-hidden='true'></i>) 
-en haut à droite de l'application.
-</div><div class=\"well well-sm text-center\">
-L'exploration de ses propres données n'est pas possible avec le navigateur
-Safari (<i class=\"fa fa-safari\" aria-hidden=\"true\"></i>).<br/>
-Pour une navigation optimale, nous vous recommandons d'utiliser les
-navigateurs Chrome (<i class=\"fa fa-chrome\" aria-hidden=\"true\"></i>)
-ou Firefox (<i class=\"fa fa-firefox\" aria-hidden=\"true\"></i>).
-</div>"
-
-mapSettingsText <- "
-<button class=\"btn btn-primary\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseExample\" aria-expanded=\"false\" aria-controls=\"collapseExample\">
-<i id=\"mapSettings\" class=\"fa fa-cogs fa-1x\"></i>
-</button>
-<div id=\"collapseExample\"class=\"collapse form-group shiny-input-container\">
-<div class=\"checkbox\">
-<label>
-<input id=\"fitToBounds\" type=\"checkbox\"/>
-<span>Synchroniser l'étendue de la carte avec la sélection ?</span>
-</label>
-</div>
-</div>"
-
-sourceHTML <- HTML(
-  '<a href="https://doi.org/10.5281/zenodo.154528"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.154528.svg" alt="DOI"></a>',
-  "Timeline EDB a été développé par",
-  "<a href=\"http://www.parisgeo.cnrs.fr/spip.php?article6416&lang=fr\" target=\"_blank\">",
-  "Robin Cura</a>, 2016.",
-  "C'est un logiciel libre, sous licence ",
-  "<a href=\"https://fr.wikipedia.org/wiki/GNU_Affero_General_Public_License\" target=\"_blank\">AGPL</a>,",
-  "et ses sources sont consultables et ré-utilisables",
-  "<a href=\"https://github.com/RCura/TimeLineEDB\" target=\"_blank\">sur ce dépôt GitHub</a>."
-  )
-
+source("src/textes.R")

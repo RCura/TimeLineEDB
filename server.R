@@ -41,7 +41,7 @@ shinyServer(function(session, input, output) {
     req(input$userData)
     withBusyIndicatorServer("loadUserData", {
       showNotification(ui = "Conversion des données...", duration = NULL, closeButton = TRUE, id = "notifData", type = "message")
-      locationData$base <- google_jsonZip_to_DF(input$userData$datapath)
+      locationData$base <- locationHistory_zippedJson_to_DF(input$userData$datapath)
       removeNotification( id = "notifData")
       locationData$geofiltred <- NA
       locationData$timefiltred <- NA
@@ -71,7 +71,7 @@ shinyServer(function(session, input, output) {
                          minor_breaks = c(3, 9, 15, 21),
                          labels = function(x){paste(x, "h")}) +
       scale_y_continuous("Densité", labels = scales::percent) +
-      theme_timelineEDB2()
+      theme_timelineEDB()
     
     if (length(locationData$geofiltred) > 1) {
       densityPlot <- densityPlot +
@@ -86,7 +86,7 @@ shinyServer(function(session, input, output) {
       geom_bar(aes(jourN, y = (..count..) / sum(..count..)),
                fill = "#43a2ca", alpha = 0.3, colour = "#053144") +
       scale_y_continuous("Densité", labels = scales::percent) +
-      theme_timelineEDB2()
+      theme_timelineEDB()
     
     if (length(locationData$geofiltred) > 1) {
       dayfreqplot <- dayfreqplot +
@@ -102,7 +102,7 @@ shinyServer(function(session, input, output) {
       geom_bar(aes(moisN, y = (..count..) / sum(..count..)),
                fill = "#43a2ca", alpha = 0.3, colour = "#053144") +
       scale_y_continuous("Densité", labels = scales::percent) +
-      theme_timelineEDB2()
+      theme_timelineEDB()
     
     if (length(locationData$geofiltred) > 1) {
       monthfreqplot <- monthfreqplot +
@@ -289,7 +289,7 @@ shinyServer(function(session, input, output) {
         colour = "#053144"
       ) +
       scale_y_continuous("Densité", labels = scales::percent) +
-      theme_timelineEDB2()
+      theme_timelineEDB()
     
     if (length(locationData$geofiltred) > 1) {
       yearfreqplot <- yearfreqplot +
@@ -323,7 +323,7 @@ shinyServer(function(session, input, output) {
       facet_grid(annee~moisN) + 
       scale_x_discrete("") +
       labs(x = "", y = "") +
-      theme_timelineEDB2() +
+      theme_timelineEDB() +
       theme(legend.position = "bottom") +
       guides(fill = guide_legend(keywidth = 5, keyheight = 2))
     

@@ -29,7 +29,7 @@ function(request) {
       fluidRow(
         column(4, plotOutput(
           "daydensity", brush = brushOpts(id = "daydensity_brush", direction = "x", resetOnNew = FALSE)
-        )),
+        ) %>% withSpinner(type = 7, color = "#4BB9DB")),
         
         column( 8, leafletOutput("map", height = "450px")
         )
@@ -39,10 +39,10 @@ function(request) {
         column(4,
                plotOutput(
                  "dayfreq", brush = brushOpts(id = "dayfreq_brush", direction = "x", resetOnNew = FALSE)
-               )),
+               ) %>% withSpinner(type = 7, color = "#4BB9DB")),
         column(4, plotOutput(
           "monthfreq", brush = brushOpts(id = "monthfreq_brush", direction = "x", resetOnNew = FALSE)
-        )),
+        ) %>% withSpinner(type = 7, color = "#4BB9DB")),
         column(
           4,
           fluidRow(
@@ -109,9 +109,11 @@ function(request) {
         )
       ),
       fluidRow(column(
-        4, plotOutput("yearPlot", brush = brushOpts(id = "yearplot_brush", direction = "x", resetOnNew = FALSE))
+        4, plotOutput("yearPlot", brush = brushOpts(
+          id = "yearplot_brush", direction = "x",resetOnNew = FALSE)
+          ) %>% withSpinner(type = 7, color = "#4BB9DB")
       ),
-      column(8, plotOutput("calendarPlot"))),
+      column(8, plotOutput("calendarPlot") %>% withSpinner(type = 7, color = "#4BB9DB"))),
       wellPanel(fluidRow(sourceHTML))
     )
   )

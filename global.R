@@ -1,5 +1,6 @@
 
 suppressPackageStartupMessages({
+  library(shinycssloaders)
   library(jqr)
   library(shiny)
   library(tidyverse)

@@ -41,7 +41,7 @@ shinyServer(function(session, input, output) {
     req(input$userData)
     withBusyIndicatorServer("loadUserData", {
       showNotification(ui = "Conversion des données...", duration = NULL, closeButton = TRUE, id = "notifData", type = "message")
-      locationData$base <- locationHistory_zippedJson_to_DF(input$userData$datapath)
+      locationData$base <- locationHistory_zippedJson_to_DF2(input$userData$datapath)
       removeNotification( id = "notifData")
       locationData$geofiltred <- NA
       locationData$timefiltred <- NA
@@ -240,19 +240,34 @@ shinyServer(function(session, input, output) {
       mutate(Xround = round(X, 3)) %>%
       mutate(Yround = round(Y, 3))
     
-    analysisData$homePoint <- homeData %>%
+    homeData_rounded_top <- homeData %>%
       group_by(Xround, Yround) %>%
-      summarise(count = n()) %>%
-      ungroup() %>%
+      summarise(count = n(), .groups = "drop") %>%
       arrange(desc(count)) %>%
       top_n(1, wt = count)
     
-    suppressMessages(revgeocode(
-      location = c(
-        analysisData$homePoint$Xround,
-        analysisData$homePoint$Yround
-      )
-    ))
+    analysisData$homePoint <- homeData %>%
+      filter(Xround == homeData_rounded_top$Xround, Yround == homeData_rounded_top$Yround) %>%
+      mutate(Xround2 = round(X, 4)) %>%
+      mutate(Yround2 = round(Y, 4)) %>%
+      group_by(Xround2, Yround2) %>%
+      summarise(count = n(), .groups = "drop") %>%
+      arrange(desc(count)) %>%
+      top_n(1, wt = count)
+    
+    
+    tidygeocoder::reverse_geo(
+      lat = analysisData$homePoint$Yround2,
+      long = analysisData$homePoint$Xround2,
+      method = "arcgis",
+      limit = 1,
+      progress_bar = FALSE,
+      quiet = TRUE,
+      full_results = TRUE
+    ) %>%
+      mutate(adresse = glue::glue("{Address}, {Postal} {City}, {Subregion}, {CntryName}")) %>%
+      pull(adresse) %>%
+      as.character()
   })
   
   output$workAddress <- renderText({
@@ -264,19 +279,35 @@ shinyServer(function(session, input, output) {
       mutate(Xround = round(X, 3)) %>%
       mutate(Yround = round(Y, 3))
     
-    analysisData$workPoint <- workData %>%
+    
+    workData_rounded_top <- workData %>%
       group_by(Xround, Yround) %>%
-      summarise(count = n()) %>%
-      ungroup() %>%
+      summarise(count = n(), .groups = "drop") %>%
       arrange(desc(count)) %>%
       top_n(1, wt = count)
     
-    suppressMessages(revgeocode(
-      location = c(
-        analysisData$workPoint$Xround,
-        analysisData$workPoint$Yround
-      )
-    ))
+    analysisData$workPoint <- workData %>%
+      filter(Xround == workData_rounded_top$Xround, Yround == workData_rounded_top$Yround) %>%
+      mutate(Xround2 = round(X, 4)) %>%
+      mutate(Yround2 = round(Y, 4)) %>%
+      group_by(Xround2, Yround2) %>%
+      summarise(count = n(), .groups = "drop") %>%
+      arrange(desc(count)) %>%
+      top_n(1, wt = count)
+    
+    
+    tidygeocoder::reverse_geo(
+      lat = analysisData$workPoint$Yround2,
+      long = analysisData$workPoint$Xround2,
+      method = "arcgis",
+      limit = 1,
+      progress_bar = FALSE,
+      quiet = TRUE,
+      full_results = TRUE
+      ) %>%
+      mutate(adresse = glue::glue("{Address}, {Postal} {City}, {Subregion}, {CntryName}")) %>%
+      pull(adresse) %>%
+      as.character()
   })
   
   
@@ -315,7 +346,7 @@ shinyServer(function(session, input, output) {
     
     calendarData <- filtredData %>%
       group_by(annee, moisN, monthWeek, jourN) %>%
-      summarise(count =  n()) %>%
+      summarise(count =  n(), .groups = "drop") %>%
       mutate(jourN = factor(jourN, levels = rev(levels(jourN))))
     
     calendarPlot <- ggplot(locationData$base, aes(monthWeek, jourN, fill = count)) +

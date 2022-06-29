@@ -12,6 +12,7 @@ suppressPackageStartupMessages({
   library(stringi)
   library(shinyjs)
   library(V8)
+  library(tidygeocoder)
 })
 options(shiny.maxRequestSize = 8*1024^2)
 #enableBookmarking(store = "server")
@@ -111,5 +112,36 @@ locationHistory_zippedJson_to_DF <- function(ZipPath){
   # Add properly detailed time columns
   formatData(resultDF)
 }
+
+locationHistory_zippedJson_to_DF2 <- function(ZipPath){
+  # Extract JSON from ZIP
+  ## Detecting files inside ZIP
+  zipFiles <- unzip(ZipPath, list = TRUE)
+  jsonPath <- filter(zipFiles, str_detect(Name, "Records.json$")) %>% pull(Name)
+  ## Unzipping
+  tmpDir <- tempfile()
+  unzip(ZipPath, files = jsonPath,
+        overwrite = TRUE,
+        junkpaths = TRUE,
+        exdir = tmpDir)
+  jsonFile <- paste(tmpDir, "Records.json", sep = "/")
+  # Reading JSON
+  raw_data <- read_lines(jsonFile, progress = FALSE)
+  # Filter JSON with `jq` and convert it to tibble
+  resultDF <- raw_data %>%
+    jqr::jq('[.locations[] | {ts : .timestamp, lat : .latitudeE7, long : .longitudeE7}]') %>%
+    jsonify::from_json(json = ., simplify = TRUE) %>%
+    mutate(X = long / 1E7,
+           Y = lat / 1E7,
+           Time = lubridate::as_datetime(ts)
+           #Time = as.POSIXct(ts, origin = "1970-01-01")
+           ) %>%
+    dplyr::select(Time, Y, X)
+  # Add properly detailed time columns
+  formatData(resultDF)
+}
+
+
+
 
 source("src/textes.R")

@@ -6,7 +6,7 @@ function(request) {
     fluidPage(
       theme = "slate-bootstrap.css",
       useShinyjs(),
-      extendShinyjs(text = jsCode),
+      extendShinyjs(text = jsCode, functions = c("launchIntro", "launchUserIntro")),
       tags$style(appCSS),
       tags$head(
         tags$link(rel = "icon", type = "image/png", href = "favicon.png"),

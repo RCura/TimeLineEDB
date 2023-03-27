@@ -11,7 +11,7 @@ Robin Cura. (2016). TimeLine Exploratory DashBoard [web application]. Zenodo. ht
 
 Article associé :
 
-Cura Robin, « [“TimeLineEDB”, application web d’exploration interactive de données de géolocalisation](http://mappemonde.mgm.fr/120geov1/) », M@ppemonde, 120, 2015/4, 2017 - http://mappemonde.mgm.fr/120geov1/
+Cura Robin, « [“TimeLineEDB”, application web d’exploration interactive de données de géolocalisation](https://journals.openedition.org/mappemonde/3172) », M@ppemonde, 120, 2015/4, 2017 - https://journals.openedition.org/mappemonde/3172 - DOI : [10.4000/mappemonde.3172](https://doi.org/10.4000/mappemonde.3172)
 
 ## Cadre et objectifs de l'application :
 
